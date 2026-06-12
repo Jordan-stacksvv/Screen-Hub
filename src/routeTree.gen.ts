@@ -9,38 +9,178 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedContentRouteImport } from './routes/_authenticated/content'
+import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
+import { Route as ApiPublicDevicesRegisterRouteImport } from './routes/api/public/devices/register'
+import { Route as ApiPublicDevicesHeartbeatRouteImport } from './routes/api/public/devices/heartbeat'
+import { Route as ApiPublicDevicesAckRouteImport } from './routes/api/public/devices/ack'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
+  id: '/groups',
+  path: '/groups',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedContentRoute = AuthenticatedContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCommandsRoute = AuthenticatedCommandsRouteImport.update({
+  id: '/commands',
+  path: '/commands',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicDevicesRegisterRoute =
+  ApiPublicDevicesRegisterRouteImport.update({
+    id: '/api/public/devices/register',
+    path: '/api/public/devices/register',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicDevicesHeartbeatRoute =
+  ApiPublicDevicesHeartbeatRouteImport.update({
+    id: '/api/public/devices/heartbeat',
+    path: '/api/public/devices/heartbeat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicDevicesAckRoute = ApiPublicDevicesAckRouteImport.update({
+  id: '/api/public/devices/ack',
+  path: '/api/public/devices/ack',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/commands': typeof AuthenticatedCommandsRoute
+  '/content': typeof AuthenticatedContentRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/devices': typeof AuthenticatedDevicesRoute
+  '/groups': typeof AuthenticatedGroupsRoute
+  '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
+  '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/commands': typeof AuthenticatedCommandsRoute
+  '/content': typeof AuthenticatedContentRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/devices': typeof AuthenticatedDevicesRoute
+  '/groups': typeof AuthenticatedGroupsRoute
+  '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
+  '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/commands': typeof AuthenticatedCommandsRoute
+  '/_authenticated/content': typeof AuthenticatedContentRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/devices': typeof AuthenticatedDevicesRoute
+  '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
+  '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/commands'
+    | '/content'
+    | '/dashboard'
+    | '/devices'
+    | '/groups'
+    | '/api/public/devices/ack'
+    | '/api/public/devices/heartbeat'
+    | '/api/public/devices/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/commands'
+    | '/content'
+    | '/dashboard'
+    | '/devices'
+    | '/groups'
+    | '/api/public/devices/ack'
+    | '/api/public/devices/heartbeat'
+    | '/api/public/devices/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/commands'
+    | '/_authenticated/content'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/devices'
+    | '/_authenticated/groups'
+    | '/api/public/devices/ack'
+    | '/api/public/devices/heartbeat'
+    | '/api/public/devices/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiPublicDevicesAckRoute: typeof ApiPublicDevicesAckRoute
+  ApiPublicDevicesHeartbeatRoute: typeof ApiPublicDevicesHeartbeatRoute
+  ApiPublicDevicesRegisterRoute: typeof ApiPublicDevicesRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +188,92 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/groups': {
+      id: '/_authenticated/groups'
+      path: '/groups'
+      fullPath: '/groups'
+      preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/devices': {
+      id: '/_authenticated/devices'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof AuthenticatedDevicesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/content': {
+      id: '/_authenticated/content'
+      path: '/content'
+      fullPath: '/content'
+      preLoaderRoute: typeof AuthenticatedContentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/commands': {
+      id: '/_authenticated/commands'
+      path: '/commands'
+      fullPath: '/commands'
+      preLoaderRoute: typeof AuthenticatedCommandsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/devices/register': {
+      id: '/api/public/devices/register'
+      path: '/api/public/devices/register'
+      fullPath: '/api/public/devices/register'
+      preLoaderRoute: typeof ApiPublicDevicesRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/devices/heartbeat': {
+      id: '/api/public/devices/heartbeat'
+      path: '/api/public/devices/heartbeat'
+      fullPath: '/api/public/devices/heartbeat'
+      preLoaderRoute: typeof ApiPublicDevicesHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/devices/ack': {
+      id: '/api/public/devices/ack'
+      path: '/api/public/devices/ack'
+      fullPath: '/api/public/devices/ack'
+      preLoaderRoute: typeof ApiPublicDevicesAckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
+  AuthenticatedContentRoute: typeof AuthenticatedContentRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRoute
+  AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,
+  AuthenticatedContentRoute: AuthenticatedContentRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDevicesRoute: AuthenticatedDevicesRoute,
+  AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiPublicDevicesAckRoute: ApiPublicDevicesAckRoute,
+  ApiPublicDevicesHeartbeatRoute: ApiPublicDevicesHeartbeatRoute,
+  ApiPublicDevicesRegisterRoute: ApiPublicDevicesRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
