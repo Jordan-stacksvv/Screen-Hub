@@ -17,6 +17,9 @@ import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContentRouteImport } from './routes/_authenticated/content'
 import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
+import { Route as ApiPublicDevicesRegisterRouteImport } from './routes/api/public/devices/register'
+import { Route as ApiPublicDevicesHeartbeatRouteImport } from './routes/api/public/devices/heartbeat'
+import { Route as ApiPublicDevicesAckRouteImport } from './routes/api/public/devices/ack'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -57,6 +60,23 @@ const AuthenticatedCommandsRoute = AuthenticatedCommandsRouteImport.update({
   path: '/commands',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicDevicesRegisterRoute =
+  ApiPublicDevicesRegisterRouteImport.update({
+    id: '/api/public/devices/register',
+    path: '/api/public/devices/register',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicDevicesHeartbeatRoute =
+  ApiPublicDevicesHeartbeatRouteImport.update({
+    id: '/api/public/devices/heartbeat',
+    path: '/api/public/devices/heartbeat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicDevicesAckRoute = ApiPublicDevicesAckRouteImport.update({
+  id: '/api/public/devices/ack',
+  path: '/api/public/devices/ack',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,6 +86,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
+  '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,6 +98,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
+  '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +112,9 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/devices': typeof AuthenticatedDevicesRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
+  '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +126,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devices'
     | '/groups'
+    | '/api/public/devices/ack'
+    | '/api/public/devices/heartbeat'
+    | '/api/public/devices/register'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -106,6 +138,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devices'
     | '/groups'
+    | '/api/public/devices/ack'
+    | '/api/public/devices/heartbeat'
+    | '/api/public/devices/register'
   id:
     | '__root__'
     | '/'
@@ -116,12 +151,18 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/devices'
     | '/_authenticated/groups'
+    | '/api/public/devices/ack'
+    | '/api/public/devices/heartbeat'
+    | '/api/public/devices/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicDevicesAckRoute: typeof ApiPublicDevicesAckRoute
+  ApiPublicDevicesHeartbeatRoute: typeof ApiPublicDevicesHeartbeatRoute
+  ApiPublicDevicesRegisterRoute: typeof ApiPublicDevicesRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -182,6 +223,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommandsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/devices/register': {
+      id: '/api/public/devices/register'
+      path: '/api/public/devices/register'
+      fullPath: '/api/public/devices/register'
+      preLoaderRoute: typeof ApiPublicDevicesRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/devices/heartbeat': {
+      id: '/api/public/devices/heartbeat'
+      path: '/api/public/devices/heartbeat'
+      fullPath: '/api/public/devices/heartbeat'
+      preLoaderRoute: typeof ApiPublicDevicesHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/devices/ack': {
+      id: '/api/public/devices/ack'
+      path: '/api/public/devices/ack'
+      fullPath: '/api/public/devices/ack'
+      preLoaderRoute: typeof ApiPublicDevicesAckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -208,6 +270,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicDevicesAckRoute: ApiPublicDevicesAckRoute,
+  ApiPublicDevicesHeartbeatRoute: ApiPublicDevicesHeartbeatRoute,
+  ApiPublicDevicesRegisterRoute: ApiPublicDevicesRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
