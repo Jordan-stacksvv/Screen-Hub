@@ -14,16 +14,252 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      commands: {
+        Row: {
+          acknowledged_at: string | null
+          command_type: Database["public"]["Enums"]["command_type"]
+          created_at: string
+          delivered_at: string | null
+          device_id: string
+          id: string
+          issued_by: string | null
+          payload: Json
+          result: Json | null
+          status: Database["public"]["Enums"]["command_status"]
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          command_type: Database["public"]["Enums"]["command_type"]
+          created_at?: string
+          delivered_at?: string | null
+          device_id: string
+          id?: string
+          issued_by?: string | null
+          payload?: Json
+          result?: Json | null
+          status?: Database["public"]["Enums"]["command_status"]
+        }
+        Update: {
+          acknowledged_at?: string | null
+          command_type?: Database["public"]["Enums"]["command_type"]
+          created_at?: string
+          delivered_at?: string | null
+          device_id?: string
+          id?: string
+          issued_by?: string | null
+          payload?: Json
+          result?: Json | null
+          status?: Database["public"]["Enums"]["command_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commands_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content: {
+        Row: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string
+          created_by: string | null
+          file_size: number | null
+          file_url: string
+          id: string
+          metadata: Json
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          created_by?: string | null
+          file_size?: number | null
+          file_url: string
+          id?: string
+          metadata?: Json
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          created_by?: string | null
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          metadata?: Json
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      device_groups: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      devices: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          device_name: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          group_id: string | null
+          id: string
+          last_seen: string | null
+          metadata: Json
+          operating_system: string | null
+          registration_token: string | null
+          status: Database["public"]["Enums"]["device_status"]
+          unique_identifier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          device_name: string
+          device_type?: Database["public"]["Enums"]["device_type"]
+          group_id?: string | null
+          id?: string
+          last_seen?: string | null
+          metadata?: Json
+          operating_system?: string | null
+          registration_token?: string | null
+          status?: Database["public"]["Enums"]["device_status"]
+          unique_identifier: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          device_name?: string
+          device_type?: Database["public"]["Enums"]["device_type"]
+          group_id?: string | null
+          id?: string
+          last_seen?: string | null
+          metadata?: Json
+          operating_system?: string | null
+          registration_token?: string | null
+          status?: Database["public"]["Enums"]["device_status"]
+          unique_identifier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "device_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "operator"
+      command_status: "pending" | "delivered" | "acknowledged" | "failed"
+      command_type:
+        | "open_url"
+        | "show_image"
+        | "play_video"
+        | "show_pdf"
+        | "reboot"
+        | "screenshot"
+      content_type: "url" | "image" | "video" | "pdf"
+      device_status: "online" | "offline" | "unregistered"
+      device_type:
+        | "android_tv"
+        | "android_phone"
+        | "android_tablet"
+        | "windows_pc"
+        | "mini_pc"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +386,27 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "operator"],
+      command_status: ["pending", "delivered", "acknowledged", "failed"],
+      command_type: [
+        "open_url",
+        "show_image",
+        "play_video",
+        "show_pdf",
+        "reboot",
+        "screenshot",
+      ],
+      content_type: ["url", "image", "video", "pdf"],
+      device_status: ["online", "offline", "unregistered"],
+      device_type: [
+        "android_tv",
+        "android_phone",
+        "android_tablet",
+        "windows_pc",
+        "mini_pc",
+        "other",
+      ],
+    },
   },
 } as const
