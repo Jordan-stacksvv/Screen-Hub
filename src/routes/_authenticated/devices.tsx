@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Plus, MoreVertical, Trash2, Pencil, MonitorSmartphone } from "lucide-react";
@@ -117,8 +117,10 @@ function DeviceRow({ device }: { device: any }) {
   return (
     <tr className="hover:bg-muted/20">
       <td className="px-4 py-3">
-        <p className="font-medium">{device.device_name}</p>
-        <p className="font-mono text-xs text-muted-foreground">{device.unique_identifier}</p>
+        <Link to="/devices/$deviceId" params={{ deviceId: device.id }} className="block hover:text-primary">
+          <p className="font-medium">{device.device_name}</p>
+          <p className="font-mono text-xs text-muted-foreground">{device.unique_identifier}</p>
+        </Link>
       </td>
       <td className="px-4 py-3 text-muted-foreground">{DEVICE_TYPES.find(t => t.value === device.device_type)?.label}</td>
       <td className="px-4 py-3 text-muted-foreground">{device.device_groups?.name ?? "—"}</td>

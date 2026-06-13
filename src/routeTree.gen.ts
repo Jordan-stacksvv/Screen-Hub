@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSimulatorRouteImport } from './routes/_authenticated/simulator'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContentRouteImport } from './routes/_authenticated/content'
 import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
+import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices.$deviceId'
 import { Route as ApiPublicDevicesRegisterRouteImport } from './routes/api/public/devices/register'
 import { Route as ApiPublicDevicesHeartbeatRouteImport } from './routes/api/public/devices/heartbeat'
 import { Route as ApiPublicDevicesAckRouteImport } from './routes/api/public/devices/ack'
@@ -34,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSimulatorRoute = AuthenticatedSimulatorRouteImport.update({
+  id: '/simulator',
+  path: '/simulator',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   id: '/groups',
@@ -60,6 +67,12 @@ const AuthenticatedCommandsRoute = AuthenticatedCommandsRouteImport.update({
   path: '/commands',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDevicesDeviceIdRoute =
+  AuthenticatedDevicesDeviceIdRouteImport.update({
+    id: '/$deviceId',
+    path: '/$deviceId',
+    getParentRoute: () => AuthenticatedDevicesRoute,
+  } as any)
 const ApiPublicDevicesRegisterRoute =
   ApiPublicDevicesRegisterRouteImport.update({
     id: '/api/public/devices/register',
@@ -84,8 +97,10 @@ export interface FileRoutesByFullPath {
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/devices': typeof AuthenticatedDevicesRoute
+  '/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/groups': typeof AuthenticatedGroupsRoute
+  '/simulator': typeof AuthenticatedSimulatorRoute
+  '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
   '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
@@ -96,8 +111,10 @@ export interface FileRoutesByTo {
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/devices': typeof AuthenticatedDevicesRoute
+  '/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/groups': typeof AuthenticatedGroupsRoute
+  '/simulator': typeof AuthenticatedSimulatorRoute
+  '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
   '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
@@ -110,8 +127,10 @@ export interface FileRoutesById {
   '/_authenticated/commands': typeof AuthenticatedCommandsRoute
   '/_authenticated/content': typeof AuthenticatedContentRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/devices': typeof AuthenticatedDevicesRoute
+  '/_authenticated/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
+  '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
   '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
@@ -126,6 +145,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devices'
     | '/groups'
+    | '/simulator'
+    | '/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
     | '/api/public/devices/register'
@@ -138,6 +159,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devices'
     | '/groups'
+    | '/simulator'
+    | '/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
     | '/api/public/devices/register'
@@ -151,6 +174,8 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/devices'
     | '/_authenticated/groups'
+    | '/_authenticated/simulator'
+    | '/_authenticated/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
     | '/api/public/devices/register'
@@ -188,6 +213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/simulator': {
+      id: '/_authenticated/simulator'
+      path: '/simulator'
+      fullPath: '/simulator'
+      preLoaderRoute: typeof AuthenticatedSimulatorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/groups': {
       id: '/_authenticated/groups'
       path: '/groups'
@@ -223,6 +255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommandsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/devices/$deviceId': {
+      id: '/_authenticated/devices/$deviceId'
+      path: '/$deviceId'
+      fullPath: '/devices/$deviceId'
+      preLoaderRoute: typeof AuthenticatedDevicesDeviceIdRouteImport
+      parentRoute: typeof AuthenticatedDevicesRoute
+    }
     '/api/public/devices/register': {
       id: '/api/public/devices/register'
       path: '/api/public/devices/register'
@@ -247,20 +286,33 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedDevicesRouteChildren {
+  AuthenticatedDevicesDeviceIdRoute: typeof AuthenticatedDevicesDeviceIdRoute
+}
+
+const AuthenticatedDevicesRouteChildren: AuthenticatedDevicesRouteChildren = {
+  AuthenticatedDevicesDeviceIdRoute: AuthenticatedDevicesDeviceIdRoute,
+}
+
+const AuthenticatedDevicesRouteWithChildren =
+  AuthenticatedDevicesRoute._addFileChildren(AuthenticatedDevicesRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
   AuthenticatedContentRoute: typeof AuthenticatedContentRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRoute
+  AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRouteWithChildren
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+  AuthenticatedSimulatorRoute: typeof AuthenticatedSimulatorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,
   AuthenticatedContentRoute: AuthenticatedContentRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedDevicesRoute: AuthenticatedDevicesRoute,
+  AuthenticatedDevicesRoute: AuthenticatedDevicesRouteWithChildren,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+  AuthenticatedSimulatorRoute: AuthenticatedSimulatorRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

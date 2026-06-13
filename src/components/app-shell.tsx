@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, MonitorSmartphone, Layers, Library, Terminal,
-  LogOut, Cast, Search,
+  LogOut, Cast, Search, Tv,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,7 @@ const NAV = [
   { to: "/groups", label: "Groups", icon: Layers },
   { to: "/content", label: "Content", icon: Library },
   { to: "/commands", label: "Commands", icon: Terminal },
+  { to: "/simulator", label: "Simulator", icon: Tv },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
