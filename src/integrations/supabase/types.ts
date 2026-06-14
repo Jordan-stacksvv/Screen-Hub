@@ -14,9 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      branches: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          name: string
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          name: string
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          name?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branches_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      broadcasts: {
+        Row: {
+          command_type: Database["public"]["Enums"]["command_type"]
+          created_at: string
+          id: string
+          issued_by: string | null
+          name: string | null
+          payload: Json
+          target_id: string | null
+          target_type: Database["public"]["Enums"]["schedule_target"]
+          total_targets: number
+        }
+        Insert: {
+          command_type: Database["public"]["Enums"]["command_type"]
+          created_at?: string
+          id?: string
+          issued_by?: string | null
+          name?: string | null
+          payload?: Json
+          target_id?: string | null
+          target_type: Database["public"]["Enums"]["schedule_target"]
+          total_targets?: number
+        }
+        Update: {
+          command_type?: Database["public"]["Enums"]["command_type"]
+          created_at?: string
+          id?: string
+          issued_by?: string | null
+          name?: string | null
+          payload?: Json
+          target_id?: string | null
+          target_type?: Database["public"]["Enums"]["schedule_target"]
+          total_targets?: number
+        }
+        Relationships: []
+      }
+      command_metrics: {
+        Row: {
+          acknowledged: number
+          command_type: Database["public"]["Enums"]["command_type"]
+          day: string
+          delivered: number
+          failed: number
+          id: string
+          issued: number
+        }
+        Insert: {
+          acknowledged?: number
+          command_type: Database["public"]["Enums"]["command_type"]
+          day: string
+          delivered?: number
+          failed?: number
+          id?: string
+          issued?: number
+        }
+        Update: {
+          acknowledged?: number
+          command_type?: Database["public"]["Enums"]["command_type"]
+          day?: string
+          delivered?: number
+          failed?: number
+          id?: string
+          issued?: number
+        }
+        Relationships: []
+      }
       commands: {
         Row: {
           acknowledged_at: string | null
+          broadcast_id: string | null
           command_type: Database["public"]["Enums"]["command_type"]
           created_at: string
           delivered_at: string | null
@@ -29,6 +128,7 @@ export type Database = {
         }
         Insert: {
           acknowledged_at?: string | null
+          broadcast_id?: string | null
           command_type: Database["public"]["Enums"]["command_type"]
           created_at?: string
           delivered_at?: string | null
@@ -41,6 +141,7 @@ export type Database = {
         }
         Update: {
           acknowledged_at?: string | null
+          broadcast_id?: string | null
           command_type?: Database["public"]["Enums"]["command_type"]
           created_at?: string
           delivered_at?: string | null
@@ -52,6 +153,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["command_status"]
         }
         Relationships: [
+          {
+            foreignKeyName: "commands_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "broadcasts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "commands_device_id_fkey"
             columns: ["device_id"]
@@ -100,6 +208,41 @@ export type Database = {
         }
         Relationships: []
       }
+      device_analytics_daily: {
+        Row: {
+          content_displayed: number
+          day: string
+          device_id: string
+          heartbeats: number
+          id: string
+          uptime_seconds: number
+        }
+        Insert: {
+          content_displayed?: number
+          day: string
+          device_id: string
+          heartbeats?: number
+          id?: string
+          uptime_seconds?: number
+        }
+        Update: {
+          content_displayed?: number
+          day?: string
+          device_id?: string
+          heartbeats?: number
+          id?: string
+          uptime_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_analytics_daily_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       device_groups: {
         Row: {
           created_at: string
@@ -131,6 +274,8 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          current_content_id: string | null
+          current_playlist_id: string | null
           device_name: string
           device_type: Database["public"]["Enums"]["device_type"]
           group_id: string | null
@@ -138,6 +283,7 @@ export type Database = {
           last_seen: string | null
           metadata: Json
           operating_system: string | null
+          paired_at: string | null
           registration_token: string | null
           status: Database["public"]["Enums"]["device_status"]
           unique_identifier: string
@@ -146,6 +292,8 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          current_content_id?: string | null
+          current_playlist_id?: string | null
           device_name: string
           device_type?: Database["public"]["Enums"]["device_type"]
           group_id?: string | null
@@ -153,6 +301,7 @@ export type Database = {
           last_seen?: string | null
           metadata?: Json
           operating_system?: string | null
+          paired_at?: string | null
           registration_token?: string | null
           status?: Database["public"]["Enums"]["device_status"]
           unique_identifier: string
@@ -161,6 +310,8 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          current_content_id?: string | null
+          current_playlist_id?: string | null
           device_name?: string
           device_type?: Database["public"]["Enums"]["device_type"]
           group_id?: string | null
@@ -168,12 +319,27 @@ export type Database = {
           last_seen?: string | null
           metadata?: Json
           operating_system?: string | null
+          paired_at?: string | null
           registration_token?: string | null
           status?: Database["public"]["Enums"]["device_status"]
           unique_identifier?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "devices_current_content_id_fkey"
+            columns: ["current_content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_current_playlist_id_fkey"
+            columns: ["current_playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "devices_group_id_fkey"
             columns: ["group_id"]
@@ -182,6 +348,137 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      pairing_codes: {
+        Row: {
+          claimed_at: string | null
+          claimed_by: string | null
+          code: string
+          created_at: string
+          device_id: string | null
+          expires_at: string
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          code: string
+          created_at?: string
+          device_id?: string | null
+          expires_at?: string
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          code?: string
+          created_at?: string
+          device_id?: string | null
+          expires_at?: string
+          id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pairing_codes_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlist_items: {
+        Row: {
+          content_id: string
+          created_at: string
+          duration_seconds: number
+          id: string
+          playlist_id: string
+          position: number
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          playlist_id: string
+          position?: number
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          playlist_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_items_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlist_items_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlists: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          loop_enabled: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          loop_enabled?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          loop_enabled?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -207,6 +504,72 @@ export type Database = {
         }
         Relationships: []
       }
+      schedules: {
+        Row: {
+          content_id: string | null
+          created_at: string
+          created_by: string | null
+          enabled: boolean
+          ends_at: string | null
+          id: string
+          name: string
+          playlist_id: string | null
+          priority: number
+          recurrence: Json
+          starts_at: string
+          target_id: string | null
+          target_type: Database["public"]["Enums"]["schedule_target"]
+          updated_at: string
+        }
+        Insert: {
+          content_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          ends_at?: string | null
+          id?: string
+          name: string
+          playlist_id?: string | null
+          priority?: number
+          recurrence?: Json
+          starts_at?: string
+          target_id?: string | null
+          target_type: Database["public"]["Enums"]["schedule_target"]
+          updated_at?: string
+        }
+        Update: {
+          content_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          ends_at?: string | null
+          id?: string
+          name?: string
+          playlist_id?: string | null
+          priority?: number
+          recurrence?: Json
+          starts_at?: string
+          target_id?: string | null
+          target_type?: Database["public"]["Enums"]["schedule_target"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedules_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -227,6 +590,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -261,6 +653,7 @@ export type Database = {
         | "windows_pc"
         | "mini_pc"
         | "other"
+      schedule_target: "device" | "group" | "all"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -408,6 +801,7 @@ export const Constants = {
         "mini_pc",
         "other",
       ],
+      schedule_target: ["device", "group", "all"],
     },
   },
 } as const
