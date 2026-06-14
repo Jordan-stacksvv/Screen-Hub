@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Plus, MoreVertical, Trash2, Pencil, MonitorSmartphone } from "lucide-react";
+import { Plus, MoreVertical, Trash2, Pencil, MonitorSmartphone, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +56,10 @@ function DevicesPage() {
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Fleet</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">Devices</h1>
         </div>
-        <AddDeviceDialog />
+        <div className="flex gap-2">
+          <ClaimCodeDialog />
+          <AddDeviceDialog />
+        </div>
       </header>
 
       <div className="flex flex-wrap gap-3">
