@@ -1,0 +1,13 @@
+{
+  "name": "ScreenHub",
+  "short_name": "ScreenHub",
+  "description": "Remote digital signage and screen management.",
+  "start_url": "/client",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "any",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "any", "type": "image/x-icon" }
+  ]
+}

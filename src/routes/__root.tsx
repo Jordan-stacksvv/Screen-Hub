@@ -57,7 +57,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Manage and control screens across all your locations from one dashboard." },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { name: "theme-color", content: "#0a0a0f" } as unknown as { rel: string; href: string },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

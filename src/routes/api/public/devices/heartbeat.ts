@@ -1,5 +1,5 @@
 // Heartbeat + command polling for client apps.
-// Auth: bearer registration_token from /api/public/devices/register.
+// Auth: bearer registration_token from /api/public/devices/register or /pair.
 import { createFileRoute } from "@tanstack/react-router";
 
 const OFFLINE_AFTER_MS = 90_000;
@@ -9,9 +9,13 @@ async function authDevice(request: Request) {
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
   if (!token || token.length < 16) return { error: "Unauthorized" as const };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.from("devices").select("id").eq("registration_token", token).maybeSingle();
+  const { data, error } = await supabaseAdmin
+    .from("devices")
+    .select("id, current_playlist_id")
+    .eq("registration_token", token)
+    .maybeSingle();
   if (error || !data) return { error: "Unauthorized" as const };
-  return { deviceId: data.id, supabaseAdmin };
+  return { deviceId: data.id, currentPlaylistId: data.current_playlist_id, supabaseAdmin };
 }
 
 export const Route = createFileRoute("/api/public/devices/heartbeat")({
@@ -27,7 +31,6 @@ export const Route = createFileRoute("/api/public/devices/heartbeat")({
           .update({ status: "online", last_seen: now.toISOString() })
           .eq("id", auth.deviceId);
 
-        // Sweep stale devices to offline. Cheap: only affects rows past threshold.
         const cutoff = new Date(now.getTime() - OFFLINE_AFTER_MS).toISOString();
         await auth.supabaseAdmin
           .from("devices")
@@ -48,10 +51,38 @@ export const Route = createFileRoute("/api/public/devices/heartbeat")({
           await auth.supabaseAdmin
             .from("commands")
             .update({ status: "delivered", delivered_at: now.toISOString() })
-            .in("id", pending.map(c => c.id));
+            .in("id", pending.map((c) => c.id));
         }
 
-        return Response.json({ ok: true, commands: pending ?? [] });
+        // Include current playlist + items if assigned
+        let playlist: unknown = null;
+        if (auth.currentPlaylistId) {
+          const { data: pl } = await auth.supabaseAdmin
+            .from("playlists")
+            .select("id, name, loop_enabled, playlist_items(id, position, duration_seconds, content(id, title, content_type, file_url))")
+            .eq("id", auth.currentPlaylistId)
+            .maybeSingle();
+          playlist = pl;
+        }
+
+        // Active schedule (highest priority, currently valid)
+        const nowIso = now.toISOString();
+        const { data: schedules } = await auth.supabaseAdmin
+          .from("schedules")
+          .select("id, name, target_type, target_id, playlist_id, content_id, priority, starts_at, ends_at")
+          .eq("enabled", true)
+          .lte("starts_at", nowIso)
+          .order("priority", { ascending: false })
+          .limit(20);
+
+        const activeSchedule = (schedules ?? []).find((s) => {
+          if (s.ends_at && new Date(s.ends_at) < now) return false;
+          if (s.target_type === "all") return true;
+          if (s.target_type === "device") return s.target_id === auth.deviceId;
+          return false; // group targeting resolved by admin assignment
+        }) ?? null;
+
+        return Response.json({ ok: true, commands: pending ?? [], playlist, schedule: activeSchedule });
       },
     },
   },

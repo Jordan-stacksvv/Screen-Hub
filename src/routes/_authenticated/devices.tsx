@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Plus, MoreVertical, Trash2, Pencil, MonitorSmartphone } from "lucide-react";
+import { Plus, MoreVertical, Trash2, Pencil, MonitorSmartphone, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +56,10 @@ function DevicesPage() {
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Fleet</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">Devices</h1>
         </div>
-        <AddDeviceDialog />
+        <div className="flex gap-2">
+          <ClaimCodeDialog />
+          <AddDeviceDialog />
+        </div>
       </header>
 
       <div className="flex flex-wrap gap-3">
@@ -201,6 +204,71 @@ function AddDeviceDialog() {
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button disabled={!name || create.isPending} onClick={() => create.mutate()}>Register</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ClaimCodeDialog() {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [type, setType] = useState<DeviceType>("android_tv");
+
+  const claim = useMutation({
+    mutationFn: async () => {
+      const upper = code.trim().toUpperCase();
+      const { data: pc, error: pcErr } = await supabase.from("pairing_codes")
+        .select("id, device_id, expires_at, metadata").eq("code", upper).maybeSingle();
+      if (pcErr) throw pcErr;
+      if (!pc) throw new Error("Code not found. The client must show the code first.");
+      if (new Date(pc.expires_at).getTime() < Date.now()) throw new Error("Code expired");
+      if (pc.device_id) throw new Error("Code already claimed");
+
+      const identifier = `sh_${crypto.randomUUID().slice(0, 12)}`;
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: dev, error: devErr } = await supabase.from("devices").insert({
+        device_name: name, device_type: type, unique_identifier: identifier,
+        status: "unregistered", created_by: user?.id ?? null,
+      }).select("id").single();
+      if (devErr) throw devErr;
+
+      const { error: upErr } = await supabase.from("pairing_codes").update({
+        device_id: dev.id, claimed_at: new Date().toISOString(), claimed_by: user?.id ?? null,
+      }).eq("id", pc.id);
+      if (upErr) throw upErr;
+    },
+    onSuccess: () => {
+      toast.success("Claimed — client will provision in a few seconds");
+      qc.invalidateQueries({ queryKey: ["devices"] });
+      setOpen(false); setCode(""); setName("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button variant="outline"><KeyRound className="mr-2 h-4 w-4" />Claim code</Button></DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Claim pairing code</DialogTitle>
+          <DialogDescription>Enter the 6-character code shown on the device's screen.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-2"><Label>Pairing code</Label><Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ABC123" className="font-mono tracking-widest" maxLength={8} /></div>
+          <div className="space-y-2"><Label>Device name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Lobby TV" /></div>
+          <div className="space-y-2"><Label>Device type</Label>
+            <Select value={type} onValueChange={(v) => setType(v as DeviceType)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{DEVICE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={!code || !name || claim.isPending} onClick={() => claim.mutate()}>Claim</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
