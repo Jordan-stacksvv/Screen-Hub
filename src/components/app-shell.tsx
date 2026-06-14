@@ -1,7 +1,8 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, MonitorSmartphone, Layers, Library, Terminal,
-  LogOut, Cast, Search, Tv,
+  LogOut, Cast, Search, Tv, ListVideo, CalendarClock, Radio,
+  Monitor, FlaskConical, Map, BookOpen, Activity, Compass,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,14 +11,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-const NAV = [
+const NAV: { to: string; label: string; icon: typeof LayoutDashboard; group?: string }[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/devices", label: "Devices", icon: MonitorSmartphone },
   { to: "/groups", label: "Groups", icon: Layers },
   { to: "/content", label: "Content", icon: Library },
+  { to: "/playlists", label: "Playlists", icon: ListVideo },
+  { to: "/schedules", label: "Schedules", icon: CalendarClock },
   { to: "/commands", label: "Commands", icon: Terminal },
-  { to: "/simulator", label: "Simulator", icon: Tv },
-] as const;
+  { to: "/broadcasts", label: "Broadcasts", icon: Radio },
+  { to: "/simulator", label: "Simulator", icon: Tv, group: "tools" },
+  { to: "/client", label: "Device Client", icon: Monitor, group: "tools" },
+  { to: "/testing", label: "Testing", icon: FlaskConical, group: "tools" },
+  { to: "/documentation", label: "Documentation", icon: BookOpen, group: "info" },
+  { to: "/roadmap", label: "Roadmap", icon: Map, group: "info" },
+  { to: "/project-status", label: "Status", icon: Activity, group: "info" },
+  { to: "/future", label: "Future", icon: Compass, group: "info" },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -55,20 +65,25 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="text-sm font-semibold tracking-tight text-sidebar-foreground">ScreenHub</span>
         </div>
 
-        <nav className="flex-1 space-y-0.5 p-3">
-          {NAV.map(({ to, label, icon: Icon }) => {
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
+          {NAV.map(({ to, label, icon: Icon, group }, i) => {
             const active = pathname === to || pathname.startsWith(to + "/");
+            const prev = NAV[i - 1];
+            const showDivider = group && prev?.group !== group;
             return (
-              <Link key={to} to={to} className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-              )}>
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-                {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
-              </Link>
+              <div key={to}>
+                {showDivider && <div className="my-2 border-t border-sidebar-border" />}
+                <Link to={to} className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                  active
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                )}>
+                  <Icon className="h-4 w-4" />
+                  <span>{label}</span>
+                  {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                </Link>
+              </div>
             );
           })}
         </nav>

@@ -12,14 +12,24 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTestingRouteImport } from './routes/_authenticated/testing'
 import { Route as AuthenticatedSimulatorRouteImport } from './routes/_authenticated/simulator'
+import { Route as AuthenticatedSchedulesRouteImport } from './routes/_authenticated/schedules'
+import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
+import { Route as AuthenticatedProjectStatusRouteImport } from './routes/_authenticated/project-status'
+import { Route as AuthenticatedPlaylistsRouteImport } from './routes/_authenticated/playlists'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedFutureRouteImport } from './routes/_authenticated/future'
+import { Route as AuthenticatedDocumentationRouteImport } from './routes/_authenticated/documentation'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContentRouteImport } from './routes/_authenticated/content'
 import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
+import { Route as AuthenticatedClientRouteImport } from './routes/_authenticated/client'
+import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices.$deviceId'
 import { Route as ApiPublicDevicesRegisterRouteImport } from './routes/api/public/devices/register'
+import { Route as ApiPublicDevicesPairRouteImport } from './routes/api/public/devices/pair'
 import { Route as ApiPublicDevicesHeartbeatRouteImport } from './routes/api/public/devices/heartbeat'
 import { Route as ApiPublicDevicesAckRouteImport } from './routes/api/public/devices/ack'
 
@@ -37,9 +47,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTestingRoute = AuthenticatedTestingRouteImport.update({
+  id: '/testing',
+  path: '/testing',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSimulatorRoute = AuthenticatedSimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSchedulesRoute = AuthenticatedSchedulesRouteImport.update({
+  id: '/schedules',
+  path: '/schedules',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProjectStatusRoute =
+  AuthenticatedProjectStatusRouteImport.update({
+    id: '/project-status',
+    path: '/project-status',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlaylistsRoute = AuthenticatedPlaylistsRouteImport.update({
+  id: '/playlists',
+  path: '/playlists',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
@@ -47,6 +83,17 @@ const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFutureRoute = AuthenticatedFutureRouteImport.update({
+  id: '/future',
+  path: '/future',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDocumentationRoute =
+  AuthenticatedDocumentationRouteImport.update({
+    id: '/documentation',
+    path: '/documentation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
   id: '/devices',
   path: '/devices',
@@ -67,6 +114,16 @@ const AuthenticatedCommandsRoute = AuthenticatedCommandsRouteImport.update({
   path: '/commands',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedClientRoute = AuthenticatedClientRouteImport.update({
+  id: '/client',
+  path: '/client',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBroadcastsRoute = AuthenticatedBroadcastsRouteImport.update({
+  id: '/broadcasts',
+  path: '/broadcasts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDevicesDeviceIdRoute =
   AuthenticatedDevicesDeviceIdRouteImport.update({
     id: '/$deviceId',
@@ -79,6 +136,11 @@ const ApiPublicDevicesRegisterRoute =
     path: '/api/public/devices/register',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicDevicesPairRoute = ApiPublicDevicesPairRouteImport.update({
+  id: '/api/public/devices/pair',
+  path: '/api/public/devices/pair',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDevicesHeartbeatRoute =
   ApiPublicDevicesHeartbeatRouteImport.update({
     id: '/api/public/devices/heartbeat',
@@ -94,29 +156,49 @@ const ApiPublicDevicesAckRoute = ApiPublicDevicesAckRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/documentation': typeof AuthenticatedDocumentationRoute
+  '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/playlists': typeof AuthenticatedPlaylistsRoute
+  '/project-status': typeof AuthenticatedProjectStatusRoute
+  '/roadmap': typeof AuthenticatedRoadmapRoute
+  '/schedules': typeof AuthenticatedSchedulesRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
+  '/testing': typeof AuthenticatedTestingRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/pair': typeof ApiPublicDevicesPairRoute
   '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/documentation': typeof AuthenticatedDocumentationRoute
+  '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/playlists': typeof AuthenticatedPlaylistsRoute
+  '/project-status': typeof AuthenticatedProjectStatusRoute
+  '/roadmap': typeof AuthenticatedRoadmapRoute
+  '/schedules': typeof AuthenticatedSchedulesRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
+  '/testing': typeof AuthenticatedTestingRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/pair': typeof ApiPublicDevicesPairRoute
   '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRoutesById {
@@ -124,15 +206,25 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/_authenticated/client': typeof AuthenticatedClientRoute
   '/_authenticated/commands': typeof AuthenticatedCommandsRoute
   '/_authenticated/content': typeof AuthenticatedContentRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/_authenticated/documentation': typeof AuthenticatedDocumentationRoute
+  '/_authenticated/future': typeof AuthenticatedFutureRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/_authenticated/playlists': typeof AuthenticatedPlaylistsRoute
+  '/_authenticated/project-status': typeof AuthenticatedProjectStatusRoute
+  '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
+  '/_authenticated/schedules': typeof AuthenticatedSchedulesRoute
   '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
+  '/_authenticated/testing': typeof AuthenticatedTestingRoute
   '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
+  '/api/public/devices/pair': typeof ApiPublicDevicesPairRoute
   '/api/public/devices/register': typeof ApiPublicDevicesRegisterRoute
 }
 export interface FileRouteTypes {
@@ -140,44 +232,74 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/broadcasts'
+    | '/client'
     | '/commands'
     | '/content'
     | '/dashboard'
     | '/devices'
+    | '/documentation'
+    | '/future'
     | '/groups'
+    | '/playlists'
+    | '/project-status'
+    | '/roadmap'
+    | '/schedules'
     | '/simulator'
+    | '/testing'
     | '/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
+    | '/api/public/devices/pair'
     | '/api/public/devices/register'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/broadcasts'
+    | '/client'
     | '/commands'
     | '/content'
     | '/dashboard'
     | '/devices'
+    | '/documentation'
+    | '/future'
     | '/groups'
+    | '/playlists'
+    | '/project-status'
+    | '/roadmap'
+    | '/schedules'
     | '/simulator'
+    | '/testing'
     | '/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
+    | '/api/public/devices/pair'
     | '/api/public/devices/register'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/broadcasts'
+    | '/_authenticated/client'
     | '/_authenticated/commands'
     | '/_authenticated/content'
     | '/_authenticated/dashboard'
     | '/_authenticated/devices'
+    | '/_authenticated/documentation'
+    | '/_authenticated/future'
     | '/_authenticated/groups'
+    | '/_authenticated/playlists'
+    | '/_authenticated/project-status'
+    | '/_authenticated/roadmap'
+    | '/_authenticated/schedules'
     | '/_authenticated/simulator'
+    | '/_authenticated/testing'
     | '/_authenticated/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
+    | '/api/public/devices/pair'
     | '/api/public/devices/register'
   fileRoutesById: FileRoutesById
 }
@@ -187,6 +309,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ApiPublicDevicesAckRoute: typeof ApiPublicDevicesAckRoute
   ApiPublicDevicesHeartbeatRoute: typeof ApiPublicDevicesHeartbeatRoute
+  ApiPublicDevicesPairRoute: typeof ApiPublicDevicesPairRoute
   ApiPublicDevicesRegisterRoute: typeof ApiPublicDevicesRegisterRoute
 }
 
@@ -213,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/testing': {
+      id: '/_authenticated/testing'
+      path: '/testing'
+      fullPath: '/testing'
+      preLoaderRoute: typeof AuthenticatedTestingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/simulator': {
       id: '/_authenticated/simulator'
       path: '/simulator'
@@ -220,11 +350,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSimulatorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/schedules': {
+      id: '/_authenticated/schedules'
+      path: '/schedules'
+      fullPath: '/schedules'
+      preLoaderRoute: typeof AuthenticatedSchedulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/roadmap': {
+      id: '/_authenticated/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof AuthenticatedRoadmapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/project-status': {
+      id: '/_authenticated/project-status'
+      path: '/project-status'
+      fullPath: '/project-status'
+      preLoaderRoute: typeof AuthenticatedProjectStatusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/playlists': {
+      id: '/_authenticated/playlists'
+      path: '/playlists'
+      fullPath: '/playlists'
+      preLoaderRoute: typeof AuthenticatedPlaylistsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/groups': {
       id: '/_authenticated/groups'
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/future': {
+      id: '/_authenticated/future'
+      path: '/future'
+      fullPath: '/future'
+      preLoaderRoute: typeof AuthenticatedFutureRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documentation': {
+      id: '/_authenticated/documentation'
+      path: '/documentation'
+      fullPath: '/documentation'
+      preLoaderRoute: typeof AuthenticatedDocumentationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/devices': {
@@ -255,6 +427,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommandsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/client': {
+      id: '/_authenticated/client'
+      path: '/client'
+      fullPath: '/client'
+      preLoaderRoute: typeof AuthenticatedClientRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/broadcasts': {
+      id: '/_authenticated/broadcasts'
+      path: '/broadcasts'
+      fullPath: '/broadcasts'
+      preLoaderRoute: typeof AuthenticatedBroadcastsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/devices/$deviceId': {
       id: '/_authenticated/devices/$deviceId'
       path: '/$deviceId'
@@ -267,6 +453,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/devices/register'
       fullPath: '/api/public/devices/register'
       preLoaderRoute: typeof ApiPublicDevicesRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/devices/pair': {
+      id: '/api/public/devices/pair'
+      path: '/api/public/devices/pair'
+      fullPath: '/api/public/devices/pair'
+      preLoaderRoute: typeof ApiPublicDevicesPairRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/devices/heartbeat': {
@@ -298,21 +491,39 @@ const AuthenticatedDevicesRouteWithChildren =
   AuthenticatedDevicesRoute._addFileChildren(AuthenticatedDevicesRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRoute
+  AuthenticatedClientRoute: typeof AuthenticatedClientRoute
   AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
   AuthenticatedContentRoute: typeof AuthenticatedContentRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRouteWithChildren
+  AuthenticatedDocumentationRoute: typeof AuthenticatedDocumentationRoute
+  AuthenticatedFutureRoute: typeof AuthenticatedFutureRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+  AuthenticatedPlaylistsRoute: typeof AuthenticatedPlaylistsRoute
+  AuthenticatedProjectStatusRoute: typeof AuthenticatedProjectStatusRoute
+  AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
+  AuthenticatedSchedulesRoute: typeof AuthenticatedSchedulesRoute
   AuthenticatedSimulatorRoute: typeof AuthenticatedSimulatorRoute
+  AuthenticatedTestingRoute: typeof AuthenticatedTestingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRoute,
+  AuthenticatedClientRoute: AuthenticatedClientRoute,
   AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,
   AuthenticatedContentRoute: AuthenticatedContentRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRouteWithChildren,
+  AuthenticatedDocumentationRoute: AuthenticatedDocumentationRoute,
+  AuthenticatedFutureRoute: AuthenticatedFutureRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+  AuthenticatedPlaylistsRoute: AuthenticatedPlaylistsRoute,
+  AuthenticatedProjectStatusRoute: AuthenticatedProjectStatusRoute,
+  AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
+  AuthenticatedSchedulesRoute: AuthenticatedSchedulesRoute,
   AuthenticatedSimulatorRoute: AuthenticatedSimulatorRoute,
+  AuthenticatedTestingRoute: AuthenticatedTestingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -324,6 +535,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ApiPublicDevicesAckRoute: ApiPublicDevicesAckRoute,
   ApiPublicDevicesHeartbeatRoute: ApiPublicDevicesHeartbeatRoute,
+  ApiPublicDevicesPairRoute: ApiPublicDevicesPairRoute,
   ApiPublicDevicesRegisterRoute: ApiPublicDevicesRegisterRoute,
 }
 export const routeTree = rootRouteImport
