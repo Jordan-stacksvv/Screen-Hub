@@ -185,7 +185,7 @@ function NewBroadcastDialog() {
       }
       if (!deviceIds.length) throw new Error("No devices in target");
 
-      let resolvedPayload: Record<string, unknown> = {};
+      let resolvedPayload: Record<string, string> = {};
       if (["open_url", "show_image", "play_video", "show_pdf"].includes(type)) {
         if (useLibrary && contentId) {
           const item = matchingContent.find(c => c.id === contentId);
