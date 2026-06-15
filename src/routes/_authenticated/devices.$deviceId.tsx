@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { ArrowLeft, Wifi, WifiOff, Activity } from "lucide-react";
+import { ArrowLeft, Wifi, WifiOff, Activity, ListVideo, CalendarClock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { DEVICE_TYPES, COMMAND_TYPES } from "@/lib/screenhub";
@@ -21,7 +21,8 @@ function DeviceDetailPage() {
     queryKey: ["device", deviceId],
     queryFn: async () => {
       const { data, error } = await supabase.from("devices")
-        .select("*, device_groups(name)").eq("id", deviceId).maybeSingle();
+        .select("*, device_groups(id, name), playlists:current_playlist_id(id, name, loop_enabled, playlist_items(id))")
+        .eq("id", deviceId).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -36,6 +37,23 @@ function DeviceDetailPage() {
       if (error) throw error;
       return data ?? [];
     },
+  });
+
+  const { data: schedules } = useQuery({
+    queryKey: ["device-schedules", deviceId, device?.group_id],
+    queryFn: async () => {
+      const { data } = await supabase.from("schedules")
+        .select("id, name, target_type, target_id, playlist_id, content_id, priority, starts_at, ends_at, enabled, playlists(name), content(title)")
+        .eq("enabled", true)
+        .order("priority", { ascending: false });
+      const all = data ?? [];
+      return all.filter(s =>
+        s.target_type === "all" ||
+        (s.target_type === "device" && s.target_id === deviceId) ||
+        (s.target_type === "group" && device?.group_id && s.target_id === device.group_id)
+      );
+    },
+    enabled: !!device,
   });
 
   useEffect(() => {
@@ -54,6 +72,8 @@ function DeviceDetailPage() {
   const lastCmd = commands?.[0];
   const lastAcked = commands?.find(c => c.status === "acknowledged");
   const online = device.status === "online";
+  const playlist = device.playlists as { id: string; name: string; loop_enabled: boolean; playlist_items: { id: string }[] } | null;
+  const group = device.device_groups as { id: string; name: string } | null;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6 md:p-8">
@@ -77,17 +97,65 @@ function DeviceDetailPage() {
         <Stat label="Status" value={device.status} />
         <Stat label="Last heartbeat" value={device.last_seen ? formatDistanceToNow(new Date(device.last_seen), { addSuffix: true }) : "Never"} />
         <Stat label="Last command" value={lastCmd ? formatDistanceToNow(new Date(lastCmd.created_at), { addSuffix: true }) : "—"} />
-        <Stat label="Group" value={(device.device_groups as { name?: string } | null)?.name ?? "—"} />
+        <Stat label="Group" value={group?.name ?? "—"} />
       </div>
 
-      {lastAcked && (
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2"><ListVideo className="h-4 w-4 text-muted-foreground" /><p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Current playlist</p></div>
+          {playlist ? (
+            <>
+              <p className="mt-2 text-sm font-medium">{playlist.name}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{playlist.playlist_items?.length ?? 0} items · {playlist.loop_enabled ? "looping" : "play once"}</p>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">No playlist assigned</p>
+          )}
+        </div>
+
         <div className="rounded-xl border border-border bg-card p-5">
           <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Current content</p>
-          <p className="mt-2 text-sm font-medium">{COMMAND_TYPES.find(t => t.value === lastAcked.command_type)?.label}</p>
-          <p className="mt-1 font-mono text-xs text-muted-foreground break-all">{JSON.stringify(lastAcked.payload)}</p>
-          <p className="mt-2 text-xs text-muted-foreground">Acknowledged {lastAcked.acknowledged_at ? formatDistanceToNow(new Date(lastAcked.acknowledged_at), { addSuffix: true }) : "—"}</p>
+          {lastAcked ? (
+            <>
+              <p className="mt-2 text-sm font-medium">{COMMAND_TYPES.find(t => t.value === lastAcked.command_type)?.label}</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground break-all line-clamp-2">{JSON.stringify(lastAcked.payload)}</p>
+              <p className="mt-2 text-xs text-muted-foreground">Acknowledged {lastAcked.acknowledged_at ? formatDistanceToNow(new Date(lastAcked.acknowledged_at), { addSuffix: true }) : "—"}</p>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">No content delivered yet</p>
+          )}
         </div>
-      )}
+      </div>
+
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-3">
+          <CalendarClock className="h-4 w-4 text-muted-foreground" />
+          <p className="text-sm font-medium">Assigned schedules</p>
+        </div>
+        {(schedules ?? []).length === 0 ? (
+          <p className="p-6 text-center text-xs text-muted-foreground">No active schedules target this device</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <tr><th className="px-4 py-2 font-medium">Name</th><th className="px-4 py-2 font-medium">Target</th><th className="px-4 py-2 font-medium">Plays</th><th className="px-4 py-2 font-medium">Priority</th><th className="px-4 py-2 font-medium">Window</th></tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {schedules?.map((s) => (
+                <tr key={s.id} className="hover:bg-muted/20">
+                  <td className="px-4 py-2 font-medium">{s.name}</td>
+                  <td className="px-4 py-2"><Badge variant="outline">{s.target_type}</Badge></td>
+                  <td className="px-4 py-2 text-muted-foreground">{(s.playlists as { name?: string } | null)?.name ?? (s.content as { title?: string } | null)?.title ?? "—"}</td>
+                  <td className="px-4 py-2 font-mono">{s.priority}</td>
+                  <td className="px-4 py-2 text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(s.starts_at), { addSuffix: true })}
+                    {s.ends_at && <> → {formatDistanceToNow(new Date(s.ends_at), { addSuffix: true })}</>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-3">
