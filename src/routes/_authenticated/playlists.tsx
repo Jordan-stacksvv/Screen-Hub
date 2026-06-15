@@ -115,18 +115,24 @@ function PlaylistEditor({ playlistId }: { playlistId: string }) {
   return (
     <div className="space-y-4 rounded-xl border border-border bg-card p-5">
       <div className="rounded-lg border border-border bg-muted/20 p-3">
-        <div className="flex flex-wrap items-end gap-2">
-          <div className="flex-1 space-y-1"><Label className="text-xs">Content</Label>
-            <Select value={contentId} onValueChange={setContentId}>
-              <SelectTrigger><SelectValue placeholder="Pick content" /></SelectTrigger>
-              <SelectContent>{content?.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}</SelectContent>
-            </Select>
+        {(content ?? []).length === 0 ? (
+          <div className="rounded-md border border-dashed border-border bg-background/50 p-4 text-center text-xs text-muted-foreground">
+            No content available. <a href="/content" className="text-primary underline-offset-2 hover:underline">Create content first.</a>
           </div>
-          <div className="w-28 space-y-1"><Label className="text-xs">Seconds</Label>
-            <Input type="number" min={2} value={duration} onChange={(e) => setDuration(parseInt(e.target.value) || 10)} />
+        ) : (
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="flex-1 space-y-1"><Label className="text-xs">Content</Label>
+              <Select value={contentId} onValueChange={setContentId}>
+                <SelectTrigger><SelectValue placeholder="Pick content" /></SelectTrigger>
+                <SelectContent>{content?.map((c) => <SelectItem key={c.id} value={c.id}>{c.title} <span className="text-muted-foreground">· {c.content_type}</span></SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="w-28 space-y-1"><Label className="text-xs">Seconds</Label>
+              <Input type="number" min={2} value={duration} onChange={(e) => setDuration(parseInt(e.target.value) || 10)} />
+            </div>
+            <Button disabled={!contentId || add.isPending} onClick={() => add.mutate()}><Plus className="mr-1 h-4 w-4" />Add</Button>
           </div>
-          <Button disabled={!contentId || add.isPending} onClick={() => add.mutate()}><Plus className="mr-1 h-4 w-4" />Add</Button>
-        </div>
+        )}
       </div>
 
       <div className="divide-y divide-border rounded-lg border border-border">
