@@ -81,19 +81,23 @@ function NewScheduleDialog() {
   const [name, setName] = useState("");
   const [targetType, setTargetType] = useState<"device" | "group" | "all">("all");
   const [targetId, setTargetId] = useState("");
+  const [source, setSource] = useState<"playlist" | "content">("playlist");
   const [playlistId, setPlaylistId] = useState("");
+  const [contentId, setContentId] = useState("");
   const [priority, setPriority] = useState(0);
+  const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
 
   const { data: opts } = useQuery({
     queryKey: ["sched-opts"],
     queryFn: async () => {
-      const [d, g, p] = await Promise.all([
+      const [d, g, p, c] = await Promise.all([
         supabase.from("devices").select("id, device_name"),
         supabase.from("device_groups").select("id, name"),
         supabase.from("playlists").select("id, name"),
+        supabase.from("content").select("id, title, content_type"),
       ]);
-      return { devices: d.data ?? [], groups: g.data ?? [], playlists: p.data ?? [] };
+      return { devices: d.data ?? [], groups: g.data ?? [], playlists: p.data ?? [], content: c.data ?? [] };
     },
   });
 
@@ -102,14 +106,18 @@ function NewScheduleDialog() {
       const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase.from("schedules").insert({
         name, target_type: targetType, target_id: targetType === "all" ? null : targetId,
-        playlist_id: playlistId || null, priority,
-        ends_at: endsAt || null, created_by: user?.id ?? null,
+        playlist_id: source === "playlist" ? (playlistId || null) : null,
+        content_id: source === "content" ? (contentId || null) : null,
+        priority, starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
+        ends_at: endsAt ? new Date(endsAt).toISOString() : null, created_by: user?.id ?? null,
       });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Scheduled"); qc.invalidateQueries({ queryKey: ["schedules"] }); setOpen(false); setName(""); setPlaylistId(""); },
+    onSuccess: () => { toast.success("Scheduled"); qc.invalidateQueries({ queryKey: ["schedules"] }); setOpen(false); setName(""); setPlaylistId(""); setContentId(""); setStartsAt(""); setEndsAt(""); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const valid = name && (source === "playlist" ? playlistId : contentId);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -120,7 +128,7 @@ function NewScheduleDialog() {
           <div className="space-y-2"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Morning rotation" /></div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-2"><Label>Target</Label>
-              <Select value={targetType} onValueChange={(v) => setTargetType(v as any)}>
+              <Select value={targetType} onValueChange={(v) => setTargetType(v as "device" | "group" | "all")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All devices</SelectItem>
@@ -135,21 +143,50 @@ function NewScheduleDialog() {
             <div className="space-y-2"><Label>Pick {targetType}</Label>
               <Select value={targetId} onValueChange={setTargetId}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{(targetType === "device" ? opts?.devices : opts?.groups)?.map((t: any) => (
-                  <SelectItem key={t.id} value={t.id}>{t.device_name ?? t.name}</SelectItem>
+                <SelectContent>{(targetType === "device" ? opts?.devices : opts?.groups)?.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>{"device_name" in t ? t.device_name : t.name}</SelectItem>
                 ))}</SelectContent>
               </Select>
             </div>
           )}
-          <div className="space-y-2"><Label>Playlist</Label>
-            <Select value={playlistId} onValueChange={setPlaylistId}>
-              <SelectTrigger><SelectValue placeholder="Pick a playlist" /></SelectTrigger>
-              <SelectContent>{opts?.playlists.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+          <div className="space-y-2"><Label>Display</Label>
+            <Select value={source} onValueChange={(v) => setSource(v as "playlist" | "content")}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="playlist">Playlist</SelectItem>
+                <SelectItem value="content">Single content item</SelectItem>
+              </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2"><Label>Ends at (optional)</Label><Input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} /></div>
+          {source === "playlist" ? (
+            <div className="space-y-2"><Label>Playlist</Label>
+              {(opts?.playlists ?? []).length === 0 ? (
+                <p className="text-xs text-muted-foreground">No playlists. <a href="/playlists" className="text-primary hover:underline">Create one first.</a></p>
+              ) : (
+                <Select value={playlistId} onValueChange={setPlaylistId}>
+                  <SelectTrigger><SelectValue placeholder="Pick a playlist" /></SelectTrigger>
+                  <SelectContent>{opts?.playlists.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                </Select>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2"><Label>Content</Label>
+              {(opts?.content ?? []).length === 0 ? (
+                <p className="text-xs text-muted-foreground">No content. <a href="/content" className="text-primary hover:underline">Create content first.</a></p>
+              ) : (
+                <Select value={contentId} onValueChange={setContentId}>
+                  <SelectTrigger><SelectValue placeholder="Pick content" /></SelectTrigger>
+                  <SelectContent>{opts?.content.map((c) => <SelectItem key={c.id} value={c.id}>{c.title} · {c.content_type}</SelectItem>)}</SelectContent>
+                </Select>
+              )}
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-2"><Label>Starts at</Label><Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Ends at (optional)</Label><Input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} /></div>
+          </div>
         </div>
-        <DialogFooter><Button disabled={!name || !playlistId || create.isPending} onClick={() => create.mutate()}>Create</Button></DialogFooter>
+        <DialogFooter><Button disabled={!valid || create.isPending} onClick={() => create.mutate()}>Create</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
