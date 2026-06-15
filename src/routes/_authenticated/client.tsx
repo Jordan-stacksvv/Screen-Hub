@@ -83,11 +83,21 @@ function ClientPage() {
           body: JSON.stringify({}),
         });
         if (!res.ok) throw new Error(String(res.status));
-        const data = await res.json() as { commands: Cmd[]; playlist: Playlist };
+        const data = await res.json() as {
+          commands: Cmd[]; playlist: Playlist;
+          scheduled_content: { id: string; content_type: string; file_url: string } | null;
+        };
         setOnline(true);
         backoffRef.current = 1000;
         for (const c of data.commands ?? []) applyCommand(c);
-        if (data.playlist && data.playlist.playlist_items?.length) {
+        // Scheduled content takes precedence over a playlist
+        if (data.scheduled_content) {
+          const sc = data.scheduled_content;
+          const next = { type: sc.content_type, url: sc.file_url };
+          setContent(next);
+          localStorage.setItem(LS_LAST_CONTENT, JSON.stringify(next));
+          setPlaylist(null);
+        } else if (data.playlist && data.playlist.playlist_items?.length) {
           setPlaylist(data.playlist);
         }
       } catch {
