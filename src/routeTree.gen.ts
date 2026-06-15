@@ -28,6 +28,7 @@ import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedClientRouteImport } from './routes/_authenticated/client'
 import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices.$deviceId'
+import { Route as AuthenticatedBroadcastsBroadcastIdRouteImport } from './routes/_authenticated/broadcasts.$broadcastId'
 import { Route as ApiPublicDevicesRegisterRouteImport } from './routes/api/public/devices/register'
 import { Route as ApiPublicDevicesPairRouteImport } from './routes/api/public/devices/pair'
 import { Route as ApiPublicDevicesHeartbeatRouteImport } from './routes/api/public/devices/heartbeat'
@@ -130,6 +131,12 @@ const AuthenticatedDevicesDeviceIdRoute =
     path: '/$deviceId',
     getParentRoute: () => AuthenticatedDevicesRoute,
   } as any)
+const AuthenticatedBroadcastsBroadcastIdRoute =
+  AuthenticatedBroadcastsBroadcastIdRouteImport.update({
+    id: '/$broadcastId',
+    path: '/$broadcastId',
+    getParentRoute: () => AuthenticatedBroadcastsRoute,
+  } as any)
 const ApiPublicDevicesRegisterRoute =
   ApiPublicDevicesRegisterRouteImport.update({
     id: '/api/public/devices/register',
@@ -156,7 +163,7 @@ const ApiPublicDevicesAckRoute = ApiPublicDevicesAckRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/schedules': typeof AuthenticatedSchedulesRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
   '/testing': typeof AuthenticatedTestingRoute
+  '/broadcasts/$broadcastId': typeof AuthenticatedBroadcastsBroadcastIdRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
@@ -180,7 +188,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
@@ -195,6 +203,7 @@ export interface FileRoutesByTo {
   '/schedules': typeof AuthenticatedSchedulesRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
   '/testing': typeof AuthenticatedTestingRoute
+  '/broadcasts/$broadcastId': typeof AuthenticatedBroadcastsBroadcastIdRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
@@ -206,7 +215,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRoute
+  '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/_authenticated/client': typeof AuthenticatedClientRoute
   '/_authenticated/commands': typeof AuthenticatedCommandsRoute
   '/_authenticated/content': typeof AuthenticatedContentRoute
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/_authenticated/schedules': typeof AuthenticatedSchedulesRoute
   '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
   '/_authenticated/testing': typeof AuthenticatedTestingRoute
+  '/_authenticated/broadcasts/$broadcastId': typeof AuthenticatedBroadcastsBroadcastIdRoute
   '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
   '/api/public/devices/heartbeat': typeof ApiPublicDevicesHeartbeatRoute
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/schedules'
     | '/simulator'
     | '/testing'
+    | '/broadcasts/$broadcastId'
     | '/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/schedules'
     | '/simulator'
     | '/testing'
+    | '/broadcasts/$broadcastId'
     | '/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
@@ -296,6 +308,7 @@ export interface FileRouteTypes {
     | '/_authenticated/schedules'
     | '/_authenticated/simulator'
     | '/_authenticated/testing'
+    | '/_authenticated/broadcasts/$broadcastId'
     | '/_authenticated/devices/$deviceId'
     | '/api/public/devices/ack'
     | '/api/public/devices/heartbeat'
@@ -448,6 +461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDevicesDeviceIdRouteImport
       parentRoute: typeof AuthenticatedDevicesRoute
     }
+    '/_authenticated/broadcasts/$broadcastId': {
+      id: '/_authenticated/broadcasts/$broadcastId'
+      path: '/$broadcastId'
+      fullPath: '/broadcasts/$broadcastId'
+      preLoaderRoute: typeof AuthenticatedBroadcastsBroadcastIdRouteImport
+      parentRoute: typeof AuthenticatedBroadcastsRoute
+    }
     '/api/public/devices/register': {
       id: '/api/public/devices/register'
       path: '/api/public/devices/register'
@@ -479,6 +499,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedBroadcastsRouteChildren {
+  AuthenticatedBroadcastsBroadcastIdRoute: typeof AuthenticatedBroadcastsBroadcastIdRoute
+}
+
+const AuthenticatedBroadcastsRouteChildren: AuthenticatedBroadcastsRouteChildren =
+  {
+    AuthenticatedBroadcastsBroadcastIdRoute:
+      AuthenticatedBroadcastsBroadcastIdRoute,
+  }
+
+const AuthenticatedBroadcastsRouteWithChildren =
+  AuthenticatedBroadcastsRoute._addFileChildren(
+    AuthenticatedBroadcastsRouteChildren,
+  )
+
 interface AuthenticatedDevicesRouteChildren {
   AuthenticatedDevicesDeviceIdRoute: typeof AuthenticatedDevicesDeviceIdRoute
 }
@@ -491,7 +526,7 @@ const AuthenticatedDevicesRouteWithChildren =
   AuthenticatedDevicesRoute._addFileChildren(AuthenticatedDevicesRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRoute
+  AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRouteWithChildren
   AuthenticatedClientRoute: typeof AuthenticatedClientRoute
   AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
   AuthenticatedContentRoute: typeof AuthenticatedContentRoute
@@ -509,7 +544,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRoute,
+  AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRouteWithChildren,
   AuthenticatedClientRoute: AuthenticatedClientRoute,
   AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,
   AuthenticatedContentRoute: AuthenticatedContentRoute,

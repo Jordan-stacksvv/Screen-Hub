@@ -11,11 +11,11 @@ async function authDevice(request: Request) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("devices")
-    .select("id, current_playlist_id")
+    .select("id, current_playlist_id, group_id")
     .eq("registration_token", token)
     .maybeSingle();
   if (error || !data) return { error: "Unauthorized" as const };
-  return { deviceId: data.id, currentPlaylistId: data.current_playlist_id, supabaseAdmin };
+  return { deviceId: data.id, currentPlaylistId: data.current_playlist_id, groupId: data.group_id, supabaseAdmin };
 }
 
 export const Route = createFileRoute("/api/public/devices/heartbeat")({
@@ -54,18 +54,7 @@ export const Route = createFileRoute("/api/public/devices/heartbeat")({
             .in("id", pending.map((c) => c.id));
         }
 
-        // Include current playlist + items if assigned
-        let playlist: unknown = null;
-        if (auth.currentPlaylistId) {
-          const { data: pl } = await auth.supabaseAdmin
-            .from("playlists")
-            .select("id, name, loop_enabled, playlist_items(id, position, duration_seconds, content(id, title, content_type, file_url))")
-            .eq("id", auth.currentPlaylistId)
-            .maybeSingle();
-          playlist = pl;
-        }
-
-        // Active schedule (highest priority, currently valid)
+        // Active schedule (highest priority, currently valid), group-aware
         const nowIso = now.toISOString();
         const { data: schedules } = await auth.supabaseAdmin
           .from("schedules")
@@ -73,16 +62,43 @@ export const Route = createFileRoute("/api/public/devices/heartbeat")({
           .eq("enabled", true)
           .lte("starts_at", nowIso)
           .order("priority", { ascending: false })
-          .limit(20);
+          .limit(50);
 
         const activeSchedule = (schedules ?? []).find((s) => {
           if (s.ends_at && new Date(s.ends_at) < now) return false;
           if (s.target_type === "all") return true;
           if (s.target_type === "device") return s.target_id === auth.deviceId;
-          return false; // group targeting resolved by admin assignment
+          if (s.target_type === "group") return s.target_id && s.target_id === auth.groupId;
+          return false;
         }) ?? null;
 
-        return Response.json({ ok: true, commands: pending ?? [], playlist, schedule: activeSchedule });
+        // Effective playlist: schedule playlist > device.current_playlist_id
+        const effectivePlaylistId = activeSchedule?.playlist_id ?? auth.currentPlaylistId;
+        let playlist: unknown = null;
+        if (effectivePlaylistId) {
+          const { data: pl } = await auth.supabaseAdmin
+            .from("playlists")
+            .select("id, name, loop_enabled, playlist_items(id, position, duration_seconds, content(id, title, content_type, file_url))")
+            .eq("id", effectivePlaylistId)
+            .maybeSingle();
+          playlist = pl;
+        }
+
+        // Schedule content overrides into a synthetic directive
+        let scheduledContent: unknown = null;
+        if (activeSchedule?.content_id) {
+          const { data: c } = await auth.supabaseAdmin
+            .from("content")
+            .select("id, title, content_type, file_url")
+            .eq("id", activeSchedule.content_id)
+            .maybeSingle();
+          scheduledContent = c;
+        }
+
+        return Response.json({
+          ok: true, commands: pending ?? [], playlist,
+          schedule: activeSchedule, scheduled_content: scheduledContent,
+        });
       },
     },
   },
