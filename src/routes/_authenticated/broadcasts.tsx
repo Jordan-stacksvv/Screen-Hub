@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/broadcasts")({ component: 
 
 type BroadcastRow = {
   id: string; name: string | null; target_type: string; target_id: string | null;
-  command_type: CommandType; payload: Record<string, unknown>;
+  command_type: CommandType; payload: Record<string, string>;
   total_targets: number; issued_by: string | null; created_at: string;
 };
 
