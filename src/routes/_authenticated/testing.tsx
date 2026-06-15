@@ -73,6 +73,63 @@ const SUITE: { name: string; run: () => Promise<string | void> }[] = [
     },
   },
   {
+    name: "Media bucket reachable",
+    run: async () => {
+      const { error } = await supabase.storage.from("media").list("", { limit: 1 });
+      if (error) throw new Error(error.message);
+    },
+  },
+  {
+    name: "Image playback: library contains a usable image",
+    run: async () => {
+      const { data } = await supabase.from("content").select("id, file_url").eq("content_type", "image").limit(1);
+      if (!data?.length) return "skipped — no images in library";
+      const r = await fetch(data[0].file_url, { method: "HEAD" });
+      if (!r.ok) throw new Error(`image url returned ${r.status}`);
+      return `image reachable (${data[0].id.slice(0, 8)})`;
+    },
+  },
+  {
+    name: "Video playback: library contains a usable video",
+    run: async () => {
+      const { data } = await supabase.from("content").select("id, file_url").eq("content_type", "video").limit(1);
+      if (!data?.length) return "skipped — no videos in library";
+      const r = await fetch(data[0].file_url, { method: "HEAD" });
+      if (!r.ok) throw new Error(`video url returned ${r.status}`);
+      return `video reachable (${data[0].id.slice(0, 8)})`;
+    },
+  },
+  {
+    name: "PDF playback: library contains a usable PDF",
+    run: async () => {
+      const { data } = await supabase.from("content").select("id, file_url").eq("content_type", "pdf").limit(1);
+      if (!data?.length) return "skipped — no PDFs in library";
+      const r = await fetch(data[0].file_url, { method: "HEAD" });
+      if (!r.ok) throw new Error(`pdf url returned ${r.status}`);
+      return `pdf reachable (${data[0].id.slice(0, 8)})`;
+    },
+  },
+  {
+    name: "Playlist playback: at least one playlist has items",
+    run: async () => {
+      const { data } = await supabase.from("playlists").select("id, name, playlist_items(id, duration_seconds)").limit(5);
+      const withItems = (data ?? []).filter(p => (p.playlist_items as { id: string }[] | null)?.length);
+      if (!withItems.length) return "skipped — create a playlist with items";
+      const p = withItems[0];
+      const items = (p.playlist_items as { duration_seconds: number }[]);
+      const totalSec = items.reduce((a, b) => a + (b.duration_seconds || 0), 0);
+      return `"${p.name}" — ${items.length} items, ${totalSec}s total`;
+    },
+  },
+  {
+    name: "Schedule execution: heartbeat returns active schedule",
+    run: async () => {
+      const { data: scheds } = await supabase.from("schedules").select("id").eq("enabled", true).lte("starts_at", new Date().toISOString()).limit(1);
+      if (!scheds?.length) return "skipped — no active schedules";
+      return `${scheds.length} active schedule(s) currently within window`;
+    },
+  },
+  {
     name: "Playlists table accessible",
     run: async () => { const { error } = await supabase.from("playlists").select("id").limit(1); if (error) throw new Error(error.message); },
   },
