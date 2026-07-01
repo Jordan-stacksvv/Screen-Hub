@@ -5,6 +5,7 @@ import { Plus, Trash2, CalendarClock, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { describeRecurrence, parseRecurrence, type Recurrence } from "@/lib/screenhub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -159,7 +160,7 @@ function NewScheduleDialog() {
         content_id: source === "content" ? (contentId || null) : null,
         priority, starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
-        recurrence: recurrence as unknown as import("@/integrations/supabase/types").Json,
+        recurrence: recurrence as unknown as Json,
         created_by: user?.id ?? null,
       });
       if (error) throw error;
