@@ -159,7 +159,7 @@ function NewScheduleDialog() {
         content_id: source === "content" ? (contentId || null) : null,
         priority, starts_at: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
         ends_at: endsAt ? new Date(endsAt).toISOString() : null,
-        recurrence: recurrence as unknown as Record<string, unknown>,
+        recurrence: recurrence as unknown as import("@/integrations/supabase/types").Json,
         created_by: user?.id ?? null,
       });
       if (error) throw error;
