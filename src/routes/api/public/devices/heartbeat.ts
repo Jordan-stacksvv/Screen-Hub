@@ -1,6 +1,7 @@
 // Heartbeat + command polling for client apps.
 // Auth: bearer registration_token from /api/public/devices/register or /pair.
 import { createFileRoute } from "@tanstack/react-router";
+import { parseRecurrence } from "@/lib/screenhub";
 
 const OFFLINE_AFTER_MS = 90_000;
 
@@ -16,6 +17,31 @@ async function authDevice(request: Request) {
     .maybeSingle();
   if (error || !data) return { error: "Unauthorized" as const };
   return { deviceId: data.id, currentPlaylistId: data.current_playlist_id, groupId: data.group_id, supabaseAdmin };
+}
+
+// Returns true if a schedule's recurrence + windows include the given moment.
+function isScheduleActive(sched: {
+  starts_at: string; ends_at: string | null; recurrence: unknown;
+}, now: Date): boolean {
+  if (new Date(sched.starts_at) > now) return false;
+  if (sched.ends_at && new Date(sched.ends_at) < now) return false;
+  const r = parseRecurrence(sched.recurrence);
+  const inWindow = (start?: string, end?: string) => {
+    if (!start || !end) return true;
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    const cur = now.getHours() * 60 + now.getMinutes();
+    const s = sh * 60 + sm;
+    const e = eh * 60 + em;
+    return s <= e ? cur >= s && cur <= e : cur >= s || cur <= e;
+  };
+  if (r.kind === "none") return true;
+  if (r.kind === "daily") return inWindow(r.time_start, r.time_end);
+  if (r.kind === "weekly") {
+    if (!r.days_of_week?.includes(now.getDay())) return false;
+    return inWindow(r.time_start, r.time_end);
+  }
+  return true;
 }
 
 export const Route = createFileRoute("/api/public/devices/heartbeat")({
@@ -55,17 +81,15 @@ export const Route = createFileRoute("/api/public/devices/heartbeat")({
         }
 
         // Active schedule (highest priority, currently valid), group-aware
-        const nowIso = now.toISOString();
         const { data: schedules } = await auth.supabaseAdmin
           .from("schedules")
-          .select("id, name, target_type, target_id, playlist_id, content_id, priority, starts_at, ends_at")
+          .select("id, name, target_type, target_id, playlist_id, content_id, priority, starts_at, ends_at, recurrence")
           .eq("enabled", true)
-          .lte("starts_at", nowIso)
           .order("priority", { ascending: false })
-          .limit(50);
+          .limit(100);
 
         const activeSchedule = (schedules ?? []).find((s) => {
-          if (s.ends_at && new Date(s.ends_at) < now) return false;
+          if (!isScheduleActive(s, now)) return false;
           if (s.target_type === "all") return true;
           if (s.target_type === "device") return s.target_id === auth.deviceId;
           if (s.target_type === "group") return s.target_id && s.target_id === auth.groupId;

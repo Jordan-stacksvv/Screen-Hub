@@ -54,6 +54,7 @@ export type Database = {
           issued_by: string | null
           name: string | null
           payload: Json
+          status: string
           target_id: string | null
           target_type: Database["public"]["Enums"]["schedule_target"]
           total_targets: number
@@ -65,6 +66,7 @@ export type Database = {
           issued_by?: string | null
           name?: string | null
           payload?: Json
+          status?: string
           target_id?: string | null
           target_type: Database["public"]["Enums"]["schedule_target"]
           total_targets?: number
@@ -76,6 +78,7 @@ export type Database = {
           issued_by?: string | null
           name?: string | null
           payload?: Json
+          status?: string
           target_id?: string | null
           target_type?: Database["public"]["Enums"]["schedule_target"]
           total_targets?: number
@@ -650,6 +653,10 @@ export type Database = {
         | "show_pdf"
         | "reboot"
         | "screenshot"
+        | "play_playlist"
+        | "stop_playback"
+        | "refresh_device"
+        | "reload_content"
       content_type: "url" | "image" | "video" | "pdf"
       device_status: "online" | "offline" | "unregistered"
       device_type:
@@ -796,6 +803,10 @@ export const Constants = {
         "show_pdf",
         "reboot",
         "screenshot",
+        "play_playlist",
+        "stop_playback",
+        "refresh_device",
+        "reload_content",
       ],
       content_type: ["url", "image", "video", "pdf"],
       device_status: ["online", "offline", "unregistered"],

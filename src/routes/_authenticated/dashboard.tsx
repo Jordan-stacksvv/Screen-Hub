@@ -1,26 +1,30 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { MonitorSmartphone, Wifi, WifiOff, Layers, Terminal, ArrowUpRight } from "lucide-react";
+import { MonitorSmartphone, Wifi, WifiOff, Layers, Terminal, ArrowUpRight, ListVideo, CalendarClock, Library, HardDrive, Radio } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { formatBytes, labelForCommand } from "@/lib/screenhub";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
-  component: Dashboard,
-});
+export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
 
 function Dashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn: async () => {
-      const [devices, groups, commands] = await Promise.all([
+      const [devices, groups, commands, content, playlists, schedules, broadcasts] = await Promise.all([
         supabase.from("devices").select("id, status, last_seen"),
         supabase.from("device_groups").select("id"),
         supabase.from("commands").select("id, command_type, status, created_at, devices(device_name)").order("created_at", { ascending: false }).limit(8),
+        supabase.from("content").select("id, title, content_type, file_size, created_at").order("created_at", { ascending: false }),
+        supabase.from("playlists").select("id"),
+        supabase.from("schedules").select("id, enabled"),
+        supabase.from("broadcasts").select("id, name, command_type, created_at, total_targets").order("created_at", { ascending: false }).limit(5),
       ]);
       const all = devices.data ?? [];
+      const contentAll = content.data ?? [];
       return {
         total: all.length,
         online: all.filter(d => d.status === "online").length,
@@ -28,15 +32,19 @@ function Dashboard() {
         unregistered: all.filter(d => d.status === "unregistered").length,
         groups: groups.data?.length ?? 0,
         commands: commands.data ?? [],
+        content: contentAll,
+        contentCount: contentAll.length,
+        storage: contentAll.reduce((s, c) => s + (c.file_size ?? 0), 0),
+        playlists: playlists.data?.length ?? 0,
+        schedules: (schedules.data ?? []).filter(s => s.enabled).length,
+        broadcasts: broadcasts.data ?? [],
       };
     },
   });
 
-  // realtime: refetch on device or command changes
   const [, force] = useState(0);
   useEffect(() => {
-    const ch = supabase
-      .channel("dashboard")
+    const ch = supabase.channel("dashboard")
       .on("postgres_changes", { event: "*", schema: "public", table: "devices" }, () => force(n => n+1))
       .on("postgres_changes", { event: "*", schema: "public", table: "commands" }, () => force(n => n+1))
       .subscribe();
@@ -48,6 +56,10 @@ function Dashboard() {
     { label: "Online", value: data?.online ?? 0, icon: Wifi, accent: "text-primary" },
     { label: "Offline", value: data?.offline ?? 0, icon: WifiOff, accent: "text-destructive" },
     { label: "Groups", value: data?.groups ?? 0, icon: Layers, accent: "text-foreground" },
+    { label: "Media items", value: data?.contentCount ?? 0, icon: Library, accent: "text-foreground" },
+    { label: "Playlists", value: data?.playlists ?? 0, icon: ListVideo, accent: "text-foreground" },
+    { label: "Active schedules", value: data?.schedules ?? 0, icon: CalendarClock, accent: "text-foreground" },
+    { label: "Storage used", value: formatBytes(data?.storage), icon: HardDrive, accent: "text-foreground" },
   ];
 
   return (
@@ -69,7 +81,7 @@ function Dashboard() {
               <span className="text-xs text-muted-foreground">{label}</span>
               <Icon className={`h-4 w-4 ${accent}`} />
             </div>
-            <p className="mt-3 text-3xl font-semibold tabular-nums tracking-tight">
+            <p className="mt-3 text-2xl font-semibold tabular-nums tracking-tight">
               {isLoading ? <Skeleton className="h-8 w-12" /> : value}
             </p>
           </div>
@@ -93,9 +105,9 @@ function Dashboard() {
                   <Terminal className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{c.command_type.replace(/_/g, " ")}</p>
+                  <p className="truncate text-sm font-medium">{labelForCommand(c.command_type)}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {(c as any).devices?.device_name ?? "—"} · {formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}
+                    {(c as { devices?: { device_name?: string } }).devices?.device_name ?? "—"} · {formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}
                   </p>
                 </div>
                 <StatusBadge status={c.status} />
@@ -126,6 +138,46 @@ function Dashboard() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="flex items-center gap-2 text-sm font-semibold"><Library className="h-4 w-4" />Recent uploads</h2>
+            <Link to="/content" className="text-xs text-muted-foreground hover:text-foreground">Library</Link>
+          </div>
+          <div className="divide-y divide-border">
+            {(data?.content ?? []).slice(0, 5).map(c => (
+              <div key={c.id} className="flex items-center gap-4 p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{c.title}</p>
+                  <p className="text-xs text-muted-foreground">{c.content_type} · {formatBytes(c.file_size)}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</p>
+              </div>
+            ))}
+            {(data?.content ?? []).length === 0 && !isLoading && <div className="p-10 text-center text-sm text-muted-foreground">No media yet.</div>}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="flex items-center gap-2 text-sm font-semibold"><Radio className="h-4 w-4" />Recent broadcasts</h2>
+            <Link to="/broadcasts" className="text-xs text-muted-foreground hover:text-foreground">All</Link>
+          </div>
+          <div className="divide-y divide-border">
+            {(data?.broadcasts ?? []).map(b => (
+              <div key={b.id} className="flex items-center gap-4 p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{b.name ?? labelForCommand(b.command_type)}</p>
+                  <p className="text-xs text-muted-foreground">{b.total_targets} devices · {formatDistanceToNow(new Date(b.created_at), { addSuffix: true })}</p>
+                </div>
+                <Badge variant="outline">{labelForCommand(b.command_type)}</Badge>
+              </div>
+            ))}
+            {(data?.broadcasts ?? []).length === 0 && !isLoading && <div className="p-10 text-center text-sm text-muted-foreground">No broadcasts yet.</div>}
           </div>
         </div>
       </section>
