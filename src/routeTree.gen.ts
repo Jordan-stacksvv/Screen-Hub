@@ -22,6 +22,7 @@ import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedFutureRouteImport } from './routes/_authenticated/future'
 import { Route as AuthenticatedDocumentationRouteImport } from './routes/_authenticated/documentation'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
+import { Route as AuthenticatedDesktopRouteImport } from './routes/_authenticated/desktop'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedContentRouteImport } from './routes/_authenticated/content'
 import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
@@ -100,6 +101,11 @@ const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
   path: '/devices',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDesktopRoute = AuthenticatedDesktopRouteImport.update({
+  id: '/desktop',
+  path: '/desktop',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/desktop': typeof AuthenticatedDesktopRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/documentation': typeof AuthenticatedDocumentationRoute
   '/future': typeof AuthenticatedFutureRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/desktop': typeof AuthenticatedDesktopRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/documentation': typeof AuthenticatedDocumentationRoute
   '/future': typeof AuthenticatedFutureRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/_authenticated/commands': typeof AuthenticatedCommandsRoute
   '/_authenticated/content': typeof AuthenticatedContentRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/desktop': typeof AuthenticatedDesktopRoute
   '/_authenticated/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/_authenticated/documentation': typeof AuthenticatedDocumentationRoute
   '/_authenticated/future': typeof AuthenticatedFutureRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/commands'
     | '/content'
     | '/dashboard'
+    | '/desktop'
     | '/devices'
     | '/documentation'
     | '/future'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/commands'
     | '/content'
     | '/dashboard'
+    | '/desktop'
     | '/devices'
     | '/documentation'
     | '/future'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/_authenticated/commands'
     | '/_authenticated/content'
     | '/_authenticated/dashboard'
+    | '/_authenticated/desktop'
     | '/_authenticated/devices'
     | '/_authenticated/documentation'
     | '/_authenticated/future'
@@ -419,6 +431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDevicesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/desktop': {
+      id: '/_authenticated/desktop'
+      path: '/desktop'
+      fullPath: '/desktop'
+      preLoaderRoute: typeof AuthenticatedDesktopRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -531,6 +550,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
   AuthenticatedContentRoute: typeof AuthenticatedContentRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDesktopRoute: typeof AuthenticatedDesktopRoute
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRouteWithChildren
   AuthenticatedDocumentationRoute: typeof AuthenticatedDocumentationRoute
   AuthenticatedFutureRoute: typeof AuthenticatedFutureRoute
@@ -549,6 +569,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,
   AuthenticatedContentRoute: AuthenticatedContentRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDesktopRoute: AuthenticatedDesktopRoute,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRouteWithChildren,
   AuthenticatedDocumentationRoute: AuthenticatedDocumentationRoute,
   AuthenticatedFutureRoute: AuthenticatedFutureRoute,
