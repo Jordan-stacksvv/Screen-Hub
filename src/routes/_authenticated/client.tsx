@@ -228,7 +228,7 @@ function ClientPage() {
         <p className="max-w-md text-sm text-muted-foreground">
           Open the admin dashboard → Devices → Claim, and enter this code to provision this screen.
         </p>
-        <Button variant="outline" className="mt-6" onClick={() => setPairCode(genCode())}>
+        <Button variant="outline" className="mt-6" onClick={newCode}>
           <RefreshCcw className="mr-2 h-4 w-4" />New code
         </Button>
       </div>
