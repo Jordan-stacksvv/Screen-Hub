@@ -51,6 +51,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#0a0a0f" },
       { title: "ScreenHub — Remote digital signage management" },
       { name: "description", content: "Manage and control screens across all your locations from one dashboard. Android TVs, tablets, Windows PCs and more." },
       { property: "og:title", content: "ScreenHub — Remote digital signage management" },
@@ -60,7 +61,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { name: "theme-color", content: "#0a0a0f" } as unknown as { rel: string; href: string },
     ],
   }),
   shellComponent: RootShell,

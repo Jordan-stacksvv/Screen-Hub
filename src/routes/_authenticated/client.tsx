@@ -23,11 +23,16 @@ type Playlist = {
 
 const LS_IDENTITY = "screenhub.client.identity";
 const LS_LAST_CONTENT = "screenhub.client.lastContent";
+const LS_PAIR_CODE = "screenhub.client.pairCode";
 
 function loadIdentity(): Identity | null {
   try { const raw = localStorage.getItem(LS_IDENTITY); return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 function saveIdentity(i: Identity) { localStorage.setItem(LS_IDENTITY, JSON.stringify(i)); }
+function loadPairCode(): string | null {
+  try { return localStorage.getItem(LS_PAIR_CODE); } catch { return null; }
+}
+function savePairCode(c: string) { try { localStorage.setItem(LS_PAIR_CODE, c); } catch { /* noop */ } }
 function genCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   return Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
@@ -171,10 +176,15 @@ function ClientPage() {
     return () => clearTimeout(t);
   }, [playlist, playlistIdx, setNextContent]);
 
-  // Pairing flow
+  // Pairing flow — persist the code so refresh keeps the same one.
+  // Only regenerate on explicit Reset (or "New code") action.
   useEffect(() => {
     if (identity || pairCode) return;
-    setPairCode(genCode());
+    const existing = loadPairCode();
+    if (existing) { setPairCode(existing); return; }
+    const code = genCode();
+    savePairCode(code);
+    setPairCode(code);
   }, [identity, pairCode]);
   useEffect(() => {
     if (identity || !pairCode) return;
@@ -198,7 +208,13 @@ function ClientPage() {
   }, [pairCode, identity]);
 
   const fullscreen = () => { document.documentElement.requestFullscreen?.().catch(() => undefined); };
-  const reset = () => { localStorage.removeItem(LS_IDENTITY); localStorage.removeItem(LS_LAST_CONTENT); window.location.reload(); };
+  const reset = () => {
+    localStorage.removeItem(LS_IDENTITY);
+    localStorage.removeItem(LS_LAST_CONTENT);
+    localStorage.removeItem(LS_PAIR_CODE);
+    window.location.reload();
+  };
+  const newCode = () => { const c = genCode(); savePairCode(c); setPairCode(c); };
 
   const timeText = useMemo(() => now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), [now]);
   const dateText = useMemo(() => now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }), [now]);
@@ -212,7 +228,7 @@ function ClientPage() {
         <p className="max-w-md text-sm text-muted-foreground">
           Open the admin dashboard → Devices → Claim, and enter this code to provision this screen.
         </p>
-        <Button variant="outline" className="mt-6" onClick={() => setPairCode(genCode())}>
+        <Button variant="outline" className="mt-6" onClick={newCode}>
           <RefreshCcw className="mr-2 h-4 w-4" />New code
         </Button>
       </div>
