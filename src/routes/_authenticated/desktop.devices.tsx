@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/desktop/devices")({ compon
 
 type Device = {
   id: string; device_name: string; status: string; device_type: string;
-  last_seen_at: string | null; current_content_id: string | null; group_id: string | null;
+  last_seen: string | null; current_content_id: string | null; group_id: string | null;
 };
 
 function quality(lastSeen: string | null): { label: string; color: string } {
@@ -138,7 +138,7 @@ function DesktopDevices() {
         {filtered.map((d) => {
           const sel = selected.has(d.id);
           const online = d.status === "online";
-          const qy = quality(d.last_seen_at);
+          const qy = quality(d.last_seen);
           const starred = fav.has(d.id);
           return (
             <div
@@ -162,7 +162,7 @@ function DesktopDevices() {
                   <div className="mt-2 flex items-center gap-2 text-[10px]">
                     <span className={qy.color}>● {qy.label}</span>
                     <span className="text-muted-foreground">·</span>
-                    <span className="text-muted-foreground">{d.last_seen_at ? formatDistanceToNow(new Date(d.last_seen_at), { addSuffix: true }) : "never"}</span>
+                    <span className="text-muted-foreground">{d.last_seen ? formatDistanceToNow(new Date(d.last_seen), { addSuffix: true }) : "never"}</span>
                   </div>
                 </div>
                 <button onClick={() => contextMenu(d.id)} className="opacity-0 transition-opacity group-hover:opacity-100" title="More">

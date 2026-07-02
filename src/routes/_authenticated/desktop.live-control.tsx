@@ -16,7 +16,7 @@ function LiveControl() {
 
   const { data: devices } = useQuery({
     queryKey: ["desktop-live"],
-    queryFn: async () => (await supabase.from("devices").select("id, device_name, status, last_seen_at, current_content_id, current_playlist_id, playback_status")).data ?? [],
+    queryFn: async () => (await supabase.from("devices").select("id, device_name, status, last_seen, current_content_id, current_playlist_id, status")).data ?? [],
     refetchInterval: 5000,
   });
 
@@ -61,11 +61,11 @@ function LiveControl() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium">{d.device_name}</p>
-                  <p className="text-[10px] text-muted-foreground">{d.playback_status ?? "idle"}</p>
+                  <p className="text-[10px] text-muted-foreground">{d.status ?? "idle"}</p>
                 </div>
                 <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
               </div>
-              <p className="mt-2 text-[10px] text-muted-foreground">Last: {d.last_seen_at ? formatDistanceToNow(new Date(d.last_seen_at), { addSuffix: true }) : "—"}</p>
+              <p className="mt-2 text-[10px] text-muted-foreground">Last: {d.last_seen ? formatDistanceToNow(new Date(d.last_seen), { addSuffix: true }) : "—"}</p>
               <div className="mt-2 flex gap-1">
                 <Button size="sm" variant="outline" className="h-6 flex-1 text-[10px]" onClick={(e) => { e.stopPropagation(); send(d.id, "reload_content"); }}><Play className="mr-1 h-2.5 w-2.5" />Play</Button>
                 <Button size="sm" variant="outline" className="h-6 flex-1 text-[10px]" onClick={(e) => { e.stopPropagation(); send(d.id, "stop_playback"); }}><Square className="mr-1 h-2.5 w-2.5" />Stop</Button>

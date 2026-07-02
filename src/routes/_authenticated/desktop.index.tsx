@@ -12,7 +12,7 @@ function DesktopDashboard() {
     queryKey: ["desktop-dashboard"],
     queryFn: async () => {
       const [devices, broadcasts, playlists, media] = await Promise.all([
-        supabase.from("devices").select("id, device_name, status, last_seen_at, device_type"),
+        supabase.from("devices").select("id, device_name, status, last_seen, device_type"),
         supabase.from("broadcasts").select("id, name, command_type, created_at, total_targets, status").order("created_at", { ascending: false }).limit(6),
         supabase.from("playlists").select("id"),
         supabase.from("content").select("id, file_size"),
@@ -65,7 +65,7 @@ function DesktopDashboard() {
               <li key={d.id} className="flex items-center gap-3 px-4 py-2.5">
                 {d.status === "online" ? <Wifi className="h-3.5 w-3.5 text-primary" /> : <WifiOff className="h-3.5 w-3.5 text-muted-foreground" />}
                 <Link to="/devices/$deviceId" params={{ deviceId: d.id }} className="min-w-0 flex-1 truncate text-xs hover:text-primary">{d.device_name}</Link>
-                <span className="text-[10px] text-muted-foreground">{d.last_seen_at ? formatDistanceToNow(new Date(d.last_seen_at), { addSuffix: true }) : "never"}</span>
+                <span className="text-[10px] text-muted-foreground">{d.last_seen ? formatDistanceToNow(new Date(d.last_seen), { addSuffix: true }) : "never"}</span>
               </li>
             ))}
             {(data?.devices ?? []).length === 0 && <li className="p-6 text-center text-xs text-muted-foreground">No devices yet.</li>}
