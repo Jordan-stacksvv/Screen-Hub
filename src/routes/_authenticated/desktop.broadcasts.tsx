@@ -85,7 +85,7 @@ function DesktopBroadcasts() {
     qc.invalidateQueries({ queryKey: ["desktop-bc-history"] });
   };
 
-  const duplicate = async (b: { id: string; name: string | null; command_type: string; payload: Record<string, string>; target_type: string }) => {
+  const duplicate = async (b: { id: string; name: string | null; command_type: string; payload: unknown; target_type: string }) => {
     const { data: { user } } = await supabase.auth.getUser();
     const deviceIds = (devices ?? []).map(d => d.id);
     const { data: bc } = await supabase.from("broadcasts").insert({
