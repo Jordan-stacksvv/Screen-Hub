@@ -90,7 +90,7 @@ function DesktopBroadcasts() {
     const deviceIds = (devices ?? []).map(d => d.id);
     const { data: bc } = await supabase.from("broadcasts").insert({
       name: `${b.name ?? b.command_type} (copy)`, target_type: b.target_type as "device" | "group" | "all",
-      command_type: b.command_type as CommandType, payload: b.payload,
+      command_type: b.command_type as CommandType, payload: (b.payload ?? {}) as Record<string, string>,
       total_targets: deviceIds.length, issued_by: user?.id ?? null, status: "active",
     }).select("id").maybeSingle();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
