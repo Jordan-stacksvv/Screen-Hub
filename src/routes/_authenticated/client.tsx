@@ -176,10 +176,15 @@ function ClientPage() {
     return () => clearTimeout(t);
   }, [playlist, playlistIdx, setNextContent]);
 
-  // Pairing flow
+  // Pairing flow — persist the code so refresh keeps the same one.
+  // Only regenerate on explicit Reset (or "New code") action.
   useEffect(() => {
     if (identity || pairCode) return;
-    setPairCode(genCode());
+    const existing = loadPairCode();
+    if (existing) { setPairCode(existing); return; }
+    const code = genCode();
+    savePairCode(code);
+    setPairCode(code);
   }, [identity, pairCode]);
   useEffect(() => {
     if (identity || !pairCode) return;
