@@ -1,54 +1,116 @@
-This is a very large request — 11 sections spanning real backend work, future-architecture documentation, and a testing center. Rather than try to fully ship every section at maximum depth, I'll deliver a coherent MVP slice and treat the "future" sections as designed/documented scaffolding, which is what Section 10 explicitly asks for. I want to confirm scope before I write ~30 files.
+# Phase 6 – ScreenHub Desktop Control Center
 
-## What I'll build (real, working features)
+Build a Windows-first Electron shell that reuses the existing web app's data layer (auth, devices, media, commands, broadcasts, playlists, schedules, realtime) but ships **desktop-native workflows** — not a browser wrapper. The web app stays untouched except for a shared UI package split and a handful of `window.screenhub` bridge hooks.
 
-### Database migration (one migration, all schema changes batched)
-- `pairing_codes` — 6-char code, expires_at, claimed_by_device_id (for `/client` pairing).
-- `playlists` + `playlist_items` (ordered, with duration_seconds).
-- `schedules` — target (device/group/all), content_or_playlist, starts_at/ends_at, priority, cron-like recurrence (jsonb for now).
-- `broadcasts` — target_type (device/group/all), target_id, command_type, payload, fan-out summary.
-- Add `current_playlist_id`, `current_content_id` to `devices`.
-- Future-architecture tables (created empty, RLS-locked, documented): `organizations`, `workspaces`, `branches`, `device_analytics_daily`, `command_metrics`.
-- GRANTs + RLS on every new public table, realtime publication for `devices`, `commands`, `broadcasts`.
+## Architecture
 
-### Public device API additions
-- `POST /api/public/devices/pair` — exchange pairing code for registration token (workspace claim flow).
-- Extend heartbeat to return `current_playlist` and active `schedule` payload.
+```text
+/electron
+  main.cjs              BrowserWindow, tray, IPC, autoUpdater hooks
+  preload.cjs           contextBridge → window.screenhub
+  ipc/
+    fs.cjs              native file dialogs, drag-drop paths
+    notify.cjs          native OS notifications
+    tray.cjs            tray menu + quick actions
+    window-state.cjs    persist size/pos to userData/window.json
+    net.cjs             online/offline + auto-reconnect signals
+  assets/
+    icon.ico, tray.png
+/src/desktop            Desktop-only React routes/components
+  layout.tsx            Sidebar + command palette + activity dock
+  routes/
+    dashboard.tsx
+    devices.tsx         Cards, multi-select, bulk actions, quick actions
+    live-control.tsx    Grid of live device tiles, hotkeys
+    media.tsx           Drag-drop uploader, batch, one-click broadcast
+    broadcasts.tsx      Preview → target picker → send
+    playlists.tsx
+    schedules.tsx
+    activity.tsx
+    settings.tsx
+  hooks/
+    use-desktop-bridge.ts     typed wrapper over window.screenhub
+    use-hotkeys.ts
+    use-recent.ts             recent devices / broadcasts / favorites (localStorage)
+    use-activity-feed.ts      supabase realtime subscription
+```
 
-### Production client `/client` (browser-based, PWA-installable)
-- Persistent identity in `localStorage` (device_id + registration_token).
-- Pairing UI: shows 6-char code until admin claims it, then auto-registers.
-- Fullscreen toggle, auto-reconnect with backoff, heartbeats every 30s.
-- Restores last content on reload from localStorage.
-- Renders URL / image / video / PDF; plays playlists with looped rotation; honors active schedule.
-- Realtime channel subscription for instant command delivery (same pattern as simulator).
+The desktop React bundle is built from the same Vite project using a second entry (`vite.electron.config.ts`, `base: './'`) so it can load via `file://`. In the browser, `window.screenhub` is undefined and the desktop routes are simply unreachable (Electron loads a dedicated `/desktop` entry HTML).
 
-### Admin pages (new + enhanced)
-- `/playlists` — CRUD, drag-free ordered item list, assign to device/group.
-- `/schedules` — CRUD with priority + target picker.
-- `/broadcasts` — compose broadcast → fans out to N commands → live status table (pending/delivered/ack/failed).
-- `/groups` enhanced — member list, "Broadcast to group" action, group stats (online/total).
-- `/devices/$id` enhanced — show current playlist + active schedule + assigned schedules.
-- `/documentation`, `/roadmap`, `/project-status` — content pages with completion %, module status, known limitations, testing checklist, future roadmap.
-- `/testing` — runs live integration checks against the backend (register → heartbeat → command → ack roundtrip, pairing flow, broadcast fan-out) and shows pass/fail.
-- `/future` — single hub page with tabs for Android APK, Electron, Multi-Location, Analytics, Remote Controls. Each tab documents the planned architecture, shows the prepared DB schemas, lists the interfaces, and includes ASCII flow diagrams.
+## Native bridge (`window.screenhub`)
 
-### PWA
-- `public/manifest.webmanifest` + theme/icon meta in `__root.tsx`.
-- Manifest-only (per PWA skill default): installable on home screen, no service worker — `/client` works fine online-only for MVP; offline mode is in the roadmap.
+Exposed via `contextBridge` — no `nodeIntegration`. Every method is a thin IPC call.
 
-## What I'll explicitly NOT build this turn
-- Native Android APK, Electron packaging, real multi-tenant org switching, real analytics aggregation jobs, real screenshot/reboot/volume/brightness wire protocol. These are Section 10 "prepare, don't build" — they get schemas, interfaces, and docs only.
-- Service worker / offline mode for `/client` (listed as roadmap; PWA skill says manifest-only unless offline is explicitly requested).
-- A real test runner with assertions library — `/testing` runs handcrafted end-to-end checks against the live API and shows results, not a full test framework.
+```ts
+window.screenhub = {
+  platform: 'win32' | 'darwin' | 'linux',
+  pickFiles(opts): Promise<{ path, name, size, mime }[]>
+  onFileDrop(cb): unsubscribe                // paths dropped on window
+  notify({ title, body, deviceId? }): void
+  tray.setBadge(count): void
+  tray.setStatus('online'|'offline'|'degraded'): void
+  window.getState(): { w, h, x, y, maximized }
+  net.onStatus(cb): unsubscribe              // online/offline events
+  openExternal(url): void
+  contextMenu(items): Promise<string|null>   // native right-click menus
+}
+```
 
-## Tech notes
-- All new tables: GRANT to authenticated + service_role, RLS via existing `is_workspace_member(auth.uid())`.
-- Realtime: add new tables to `supabase_realtime` publication.
-- `/client` uses the same public device API as `/simulator`; the simulator stays as a dev tool.
-- No edge functions; all server logic stays in `src/routes/api/public/*` per the stack guidance.
+When running in the browser, a no-op shim keeps the desktop routes renderable for development.
 
-## Rough file count
-~25 new files (migration, 3 API routes, ~10 route pages, client component, PWA manifest, docs page content). I'll batch writes in parallel where independent.
+## Desktop-specific workflows (not present in the web app)
 
-Confirm and I'll proceed, or tell me which sections to drop / expand.
+1. **Media drop zone** — drop files anywhere in the window → native paths arrive via IPC → uploaded to the existing `media` bucket via the existing `uploadMedia` helper → preview → "Broadcast to…" opens the target picker. No manual "choose file" step.
+2. **Live Control grid** — one tile per online device with current content, last heartbeat, playback state, and 1-key quick actions (P play, S stop, R refresh, B broadcast). Uses existing commands API.
+3. **Command palette** (Ctrl+K) — fuzzy search devices, playlists, media, recent broadcasts; Enter runs the natural action.
+4. **Activity dock** — collapsible right rail subscribed to `commands`, `broadcasts`, `devices` realtime channels. OS notifications on failures/acks (throttled).
+5. **Tray icon** — shows online/total device count; menu: Show Window, Live Control, New Broadcast, Recent Broadcasts, Quit.
+6. **Right-click context menus** — native menus on device cards, media items, playlist rows (Rename, Duplicate, Broadcast, Remove).
+7. **Recents & favorites** — per-machine (localStorage in the renderer): recent devices, recent broadcasts, starred playlists, starred devices; surfaced in sidebar and command palette.
+8. **Auto-reconnect** — on `net.onStatus('online')`, invalidate all queries and re-subscribe realtime channels; show a subtle reconnect toast.
+9. **Window state persistence** — main process saves size/pos/maximized to `app.getPath('userData')/window.json`.
+10. **Keyboard shortcuts** — Ctrl+K palette, Ctrl+B new broadcast, Ctrl+U upload, Ctrl+, settings, Ctrl+1..9 switch section, Del removes selected device (with confirm).
+
+## Device Manager upgrades
+
+Card grid with search, type/status/group filters, multi-select checkboxes, and a sticky bulk-action bar (Play Playlist, Broadcast, Open URL, Stop, Refresh, Move to Group, Remove). Each card shows: name, type, group, connection quality (derived from heartbeat gap: <45s good, <90s degraded, else offline), current content title, last-seen timestamp, playback status. Quick-action buttons on hover. Right-click for the same actions natively.
+
+## Broadcast workspace
+
+Three-pane layout: **Content preview** (reuses `ContentPicker`) → **Targets** (device list + groups + "recent targets" chips) → **Review** (summary, ETA, send). History rail on the right with duplicate/cancel/retry, wired to the existing `broadcasts` routes.
+
+## Pairing hardening (fixes existing bug)
+
+The current `/client` mints a pairing code each render. Change to:
+- On first launch: generate & persist a `device_local_id` + `pairing_code` in `localStorage`.
+- Only regenerate on explicit **Reset device** button (clears localStorage).
+- Refresh keeps the same code.
+- Once paired (device row exists for this local id), stop showing the code and store the returned server token locally.
+
+## Backend
+
+No schema changes needed — Phase 5 already provides everything. One tiny addition: a `desktop_sessions` scratch table is **not** required; recents/favorites stay client-side per machine.
+
+## Build & packaging
+
+- Add `vite.electron.config.ts` with `base: './'`, `build.outDir: 'dist-desktop'`, entry `src/desktop/main.tsx`.
+- Add `electron/main.cjs` (CommonJS because `package.json` is `"type":"module"`), loads `dist-desktop/index.html`.
+- Install `electron` + `@electron/packager` as devDeps.
+- Scripts: `desktop:dev` (vite + electron with hot reload via `file://` on rebuild), `desktop:build` (vite build then packager for `win32-x64`, output to `electron-release/`, zipped to `/mnt/documents/ScreenHub-Control-Center-win32-x64.zip`). macOS/Linux builds available via the same packager invocation with `--platform`.
+
+## Integration rules
+
+- All data reads/writes go through the existing Supabase client and existing helpers (`uploadMedia`, `selectionToCommand`, heartbeat/pair/ack routes). No duplicated business logic.
+- Realtime uses the existing Postgres changes channels.
+- Auth uses the existing email/password + Google flow; the Electron window loads the same auth route on first launch and persists the session in the renderer's localStorage.
+
+## Deliverables
+
+1. `electron/` folder with `main.cjs`, `preload.cjs`, IPC modules, tray, window-state.
+2. `src/desktop/` React app (layout + 8 routes + hooks + bridge shim).
+3. Native drag-drop upload, command palette, activity dock, tray, notifications, context menus, hotkeys.
+4. Pairing bug fix on `/client`.
+5. `vite.electron.config.ts` + `package.json` scripts.
+6. `README-desktop.md` with dev + package instructions and a downloadable Windows zip built at the end.
+
+Not in scope: auto-updater backend, code signing, installer (`.exe`/`.dmg`) — those need signing certs and a release channel. The packaged output is a portable zip; installer wiring is a follow-up.
