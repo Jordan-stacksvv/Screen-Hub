@@ -28,7 +28,7 @@ function DesktopBroadcasts() {
 
   const { data: devices } = useQuery({
     queryKey: ["desktop-bc-devices"],
-    queryFn: async () => (await supabase.from("devices").select("id, device_name, status").order("device_name")).data ?? [],
+    queryFn: async () => (await supabase.from("devices").select("id, device_name, status, group_id").order("device_name")).data ?? [],
   });
   const { data: groups } = useQuery({
     queryKey: ["desktop-bc-groups"],

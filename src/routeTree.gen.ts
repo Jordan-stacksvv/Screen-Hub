@@ -30,9 +30,14 @@ import { Route as AuthenticatedClientRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
 import { Route as AuthenticatedDesktopIndexRouteImport } from './routes/_authenticated/desktop.index'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices.$deviceId'
+import { Route as AuthenticatedDesktopSettingsRouteImport } from './routes/_authenticated/desktop.settings'
+import { Route as AuthenticatedDesktopSchedulesRouteImport } from './routes/_authenticated/desktop.schedules'
+import { Route as AuthenticatedDesktopPlaylistsRouteImport } from './routes/_authenticated/desktop.playlists'
 import { Route as AuthenticatedDesktopMediaRouteImport } from './routes/_authenticated/desktop.media'
 import { Route as AuthenticatedDesktopLiveControlRouteImport } from './routes/_authenticated/desktop.live-control'
 import { Route as AuthenticatedDesktopDevicesRouteImport } from './routes/_authenticated/desktop.devices'
+import { Route as AuthenticatedDesktopBroadcastsRouteImport } from './routes/_authenticated/desktop.broadcasts'
+import { Route as AuthenticatedDesktopActivityRouteImport } from './routes/_authenticated/desktop.activity'
 import { Route as AuthenticatedBroadcastsBroadcastIdRouteImport } from './routes/_authenticated/broadcasts.$broadcastId'
 import { Route as ApiPublicDevicesRegisterRouteImport } from './routes/api/public/devices/register'
 import { Route as ApiPublicDevicesPairRouteImport } from './routes/api/public/devices/pair'
@@ -147,6 +152,24 @@ const AuthenticatedDevicesDeviceIdRoute =
     path: '/$deviceId',
     getParentRoute: () => AuthenticatedDevicesRoute,
   } as any)
+const AuthenticatedDesktopSettingsRoute =
+  AuthenticatedDesktopSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedDesktopRoute,
+  } as any)
+const AuthenticatedDesktopSchedulesRoute =
+  AuthenticatedDesktopSchedulesRouteImport.update({
+    id: '/schedules',
+    path: '/schedules',
+    getParentRoute: () => AuthenticatedDesktopRoute,
+  } as any)
+const AuthenticatedDesktopPlaylistsRoute =
+  AuthenticatedDesktopPlaylistsRouteImport.update({
+    id: '/playlists',
+    path: '/playlists',
+    getParentRoute: () => AuthenticatedDesktopRoute,
+  } as any)
 const AuthenticatedDesktopMediaRoute =
   AuthenticatedDesktopMediaRouteImport.update({
     id: '/media',
@@ -163,6 +186,18 @@ const AuthenticatedDesktopDevicesRoute =
   AuthenticatedDesktopDevicesRouteImport.update({
     id: '/devices',
     path: '/devices',
+    getParentRoute: () => AuthenticatedDesktopRoute,
+  } as any)
+const AuthenticatedDesktopBroadcastsRoute =
+  AuthenticatedDesktopBroadcastsRouteImport.update({
+    id: '/broadcasts',
+    path: '/broadcasts',
+    getParentRoute: () => AuthenticatedDesktopRoute,
+  } as any)
+const AuthenticatedDesktopActivityRoute =
+  AuthenticatedDesktopActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
     getParentRoute: () => AuthenticatedDesktopRoute,
   } as any)
 const AuthenticatedBroadcastsBroadcastIdRoute =
@@ -214,9 +249,14 @@ export interface FileRoutesByFullPath {
   '/simulator': typeof AuthenticatedSimulatorRoute
   '/testing': typeof AuthenticatedTestingRoute
   '/broadcasts/$broadcastId': typeof AuthenticatedBroadcastsBroadcastIdRoute
+  '/desktop/activity': typeof AuthenticatedDesktopActivityRoute
+  '/desktop/broadcasts': typeof AuthenticatedDesktopBroadcastsRoute
   '/desktop/devices': typeof AuthenticatedDesktopDevicesRoute
   '/desktop/live-control': typeof AuthenticatedDesktopLiveControlRoute
   '/desktop/media': typeof AuthenticatedDesktopMediaRoute
+  '/desktop/playlists': typeof AuthenticatedDesktopPlaylistsRoute
+  '/desktop/schedules': typeof AuthenticatedDesktopSchedulesRoute
+  '/desktop/settings': typeof AuthenticatedDesktopSettingsRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/desktop/': typeof AuthenticatedDesktopIndexRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
@@ -243,9 +283,14 @@ export interface FileRoutesByTo {
   '/simulator': typeof AuthenticatedSimulatorRoute
   '/testing': typeof AuthenticatedTestingRoute
   '/broadcasts/$broadcastId': typeof AuthenticatedBroadcastsBroadcastIdRoute
+  '/desktop/activity': typeof AuthenticatedDesktopActivityRoute
+  '/desktop/broadcasts': typeof AuthenticatedDesktopBroadcastsRoute
   '/desktop/devices': typeof AuthenticatedDesktopDevicesRoute
   '/desktop/live-control': typeof AuthenticatedDesktopLiveControlRoute
   '/desktop/media': typeof AuthenticatedDesktopMediaRoute
+  '/desktop/playlists': typeof AuthenticatedDesktopPlaylistsRoute
+  '/desktop/schedules': typeof AuthenticatedDesktopSchedulesRoute
+  '/desktop/settings': typeof AuthenticatedDesktopSettingsRoute
   '/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/desktop': typeof AuthenticatedDesktopIndexRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
@@ -275,9 +320,14 @@ export interface FileRoutesById {
   '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
   '/_authenticated/testing': typeof AuthenticatedTestingRoute
   '/_authenticated/broadcasts/$broadcastId': typeof AuthenticatedBroadcastsBroadcastIdRoute
+  '/_authenticated/desktop/activity': typeof AuthenticatedDesktopActivityRoute
+  '/_authenticated/desktop/broadcasts': typeof AuthenticatedDesktopBroadcastsRoute
   '/_authenticated/desktop/devices': typeof AuthenticatedDesktopDevicesRoute
   '/_authenticated/desktop/live-control': typeof AuthenticatedDesktopLiveControlRoute
   '/_authenticated/desktop/media': typeof AuthenticatedDesktopMediaRoute
+  '/_authenticated/desktop/playlists': typeof AuthenticatedDesktopPlaylistsRoute
+  '/_authenticated/desktop/schedules': typeof AuthenticatedDesktopSchedulesRoute
+  '/_authenticated/desktop/settings': typeof AuthenticatedDesktopSettingsRoute
   '/_authenticated/devices/$deviceId': typeof AuthenticatedDevicesDeviceIdRoute
   '/_authenticated/desktop/': typeof AuthenticatedDesktopIndexRoute
   '/api/public/devices/ack': typeof ApiPublicDevicesAckRoute
@@ -307,9 +357,14 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/testing'
     | '/broadcasts/$broadcastId'
+    | '/desktop/activity'
+    | '/desktop/broadcasts'
     | '/desktop/devices'
     | '/desktop/live-control'
     | '/desktop/media'
+    | '/desktop/playlists'
+    | '/desktop/schedules'
+    | '/desktop/settings'
     | '/devices/$deviceId'
     | '/desktop/'
     | '/api/public/devices/ack'
@@ -336,9 +391,14 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/testing'
     | '/broadcasts/$broadcastId'
+    | '/desktop/activity'
+    | '/desktop/broadcasts'
     | '/desktop/devices'
     | '/desktop/live-control'
     | '/desktop/media'
+    | '/desktop/playlists'
+    | '/desktop/schedules'
+    | '/desktop/settings'
     | '/devices/$deviceId'
     | '/desktop'
     | '/api/public/devices/ack'
@@ -367,9 +427,14 @@ export interface FileRouteTypes {
     | '/_authenticated/simulator'
     | '/_authenticated/testing'
     | '/_authenticated/broadcasts/$broadcastId'
+    | '/_authenticated/desktop/activity'
+    | '/_authenticated/desktop/broadcasts'
     | '/_authenticated/desktop/devices'
     | '/_authenticated/desktop/live-control'
     | '/_authenticated/desktop/media'
+    | '/_authenticated/desktop/playlists'
+    | '/_authenticated/desktop/schedules'
+    | '/_authenticated/desktop/settings'
     | '/_authenticated/devices/$deviceId'
     | '/_authenticated/desktop/'
     | '/api/public/devices/ack'
@@ -537,6 +602,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDevicesDeviceIdRouteImport
       parentRoute: typeof AuthenticatedDevicesRoute
     }
+    '/_authenticated/desktop/settings': {
+      id: '/_authenticated/desktop/settings'
+      path: '/settings'
+      fullPath: '/desktop/settings'
+      preLoaderRoute: typeof AuthenticatedDesktopSettingsRouteImport
+      parentRoute: typeof AuthenticatedDesktopRoute
+    }
+    '/_authenticated/desktop/schedules': {
+      id: '/_authenticated/desktop/schedules'
+      path: '/schedules'
+      fullPath: '/desktop/schedules'
+      preLoaderRoute: typeof AuthenticatedDesktopSchedulesRouteImport
+      parentRoute: typeof AuthenticatedDesktopRoute
+    }
+    '/_authenticated/desktop/playlists': {
+      id: '/_authenticated/desktop/playlists'
+      path: '/playlists'
+      fullPath: '/desktop/playlists'
+      preLoaderRoute: typeof AuthenticatedDesktopPlaylistsRouteImport
+      parentRoute: typeof AuthenticatedDesktopRoute
+    }
     '/_authenticated/desktop/media': {
       id: '/_authenticated/desktop/media'
       path: '/media'
@@ -556,6 +642,20 @@ declare module '@tanstack/react-router' {
       path: '/devices'
       fullPath: '/desktop/devices'
       preLoaderRoute: typeof AuthenticatedDesktopDevicesRouteImport
+      parentRoute: typeof AuthenticatedDesktopRoute
+    }
+    '/_authenticated/desktop/broadcasts': {
+      id: '/_authenticated/desktop/broadcasts'
+      path: '/broadcasts'
+      fullPath: '/desktop/broadcasts'
+      preLoaderRoute: typeof AuthenticatedDesktopBroadcastsRouteImport
+      parentRoute: typeof AuthenticatedDesktopRoute
+    }
+    '/_authenticated/desktop/activity': {
+      id: '/_authenticated/desktop/activity'
+      path: '/activity'
+      fullPath: '/desktop/activity'
+      preLoaderRoute: typeof AuthenticatedDesktopActivityRouteImport
       parentRoute: typeof AuthenticatedDesktopRoute
     }
     '/_authenticated/broadcasts/$broadcastId': {
@@ -612,16 +712,26 @@ const AuthenticatedBroadcastsRouteWithChildren =
   )
 
 interface AuthenticatedDesktopRouteChildren {
+  AuthenticatedDesktopActivityRoute: typeof AuthenticatedDesktopActivityRoute
+  AuthenticatedDesktopBroadcastsRoute: typeof AuthenticatedDesktopBroadcastsRoute
   AuthenticatedDesktopDevicesRoute: typeof AuthenticatedDesktopDevicesRoute
   AuthenticatedDesktopLiveControlRoute: typeof AuthenticatedDesktopLiveControlRoute
   AuthenticatedDesktopMediaRoute: typeof AuthenticatedDesktopMediaRoute
+  AuthenticatedDesktopPlaylistsRoute: typeof AuthenticatedDesktopPlaylistsRoute
+  AuthenticatedDesktopSchedulesRoute: typeof AuthenticatedDesktopSchedulesRoute
+  AuthenticatedDesktopSettingsRoute: typeof AuthenticatedDesktopSettingsRoute
   AuthenticatedDesktopIndexRoute: typeof AuthenticatedDesktopIndexRoute
 }
 
 const AuthenticatedDesktopRouteChildren: AuthenticatedDesktopRouteChildren = {
+  AuthenticatedDesktopActivityRoute: AuthenticatedDesktopActivityRoute,
+  AuthenticatedDesktopBroadcastsRoute: AuthenticatedDesktopBroadcastsRoute,
   AuthenticatedDesktopDevicesRoute: AuthenticatedDesktopDevicesRoute,
   AuthenticatedDesktopLiveControlRoute: AuthenticatedDesktopLiveControlRoute,
   AuthenticatedDesktopMediaRoute: AuthenticatedDesktopMediaRoute,
+  AuthenticatedDesktopPlaylistsRoute: AuthenticatedDesktopPlaylistsRoute,
+  AuthenticatedDesktopSchedulesRoute: AuthenticatedDesktopSchedulesRoute,
+  AuthenticatedDesktopSettingsRoute: AuthenticatedDesktopSettingsRoute,
   AuthenticatedDesktopIndexRoute: AuthenticatedDesktopIndexRoute,
 }
 
