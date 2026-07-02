@@ -23,11 +23,16 @@ type Playlist = {
 
 const LS_IDENTITY = "screenhub.client.identity";
 const LS_LAST_CONTENT = "screenhub.client.lastContent";
+const LS_PAIR_CODE = "screenhub.client.pairCode";
 
 function loadIdentity(): Identity | null {
   try { const raw = localStorage.getItem(LS_IDENTITY); return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 function saveIdentity(i: Identity) { localStorage.setItem(LS_IDENTITY, JSON.stringify(i)); }
+function loadPairCode(): string | null {
+  try { return localStorage.getItem(LS_PAIR_CODE); } catch { return null; }
+}
+function savePairCode(c: string) { try { localStorage.setItem(LS_PAIR_CODE, c); } catch { /* noop */ } }
 function genCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   return Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("");
