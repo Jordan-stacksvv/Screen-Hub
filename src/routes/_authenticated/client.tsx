@@ -208,7 +208,13 @@ function ClientPage() {
   }, [pairCode, identity]);
 
   const fullscreen = () => { document.documentElement.requestFullscreen?.().catch(() => undefined); };
-  const reset = () => { localStorage.removeItem(LS_IDENTITY); localStorage.removeItem(LS_LAST_CONTENT); window.location.reload(); };
+  const reset = () => {
+    localStorage.removeItem(LS_IDENTITY);
+    localStorage.removeItem(LS_LAST_CONTENT);
+    localStorage.removeItem(LS_PAIR_CODE);
+    window.location.reload();
+  };
+  const newCode = () => { const c = genCode(); savePairCode(c); setPairCode(c); };
 
   const timeText = useMemo(() => now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), [now]);
   const dateText = useMemo(() => now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }), [now]);
