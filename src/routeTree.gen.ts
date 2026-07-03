@@ -29,6 +29,7 @@ import { Route as AuthenticatedContentRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
 import { Route as AuthenticatedClientRouteImport } from './routes/_authenticated/client'
 import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
+import { Route as AuthenticatedBackupRouteImport } from './routes/_authenticated/backup'
 import { Route as AuthenticatedDesktopIndexRouteImport } from './routes/_authenticated/desktop.index'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices.$deviceId'
 import { Route as AuthenticatedDesktopSettingsRouteImport } from './routes/_authenticated/desktop.settings'
@@ -147,6 +148,11 @@ const AuthenticatedBroadcastsRoute = AuthenticatedBroadcastsRouteImport.update({
   path: '/broadcasts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBackupRoute = AuthenticatedBackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDesktopIndexRoute =
   AuthenticatedDesktopIndexRouteImport.update({
     id: '/',
@@ -239,6 +245,7 @@ const ApiPublicDevicesAckRoute = ApiPublicDevicesAckRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/backup': typeof AuthenticatedBackupRoute
   '/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/backup': typeof AuthenticatedBackupRoute
   '/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/backup': typeof AuthenticatedBackupRoute
   '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/_authenticated/client': typeof AuthenticatedClientRoute
   '/_authenticated/commands': typeof AuthenticatedCommandsRoute
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/backup'
     | '/broadcasts'
     | '/client'
     | '/commands'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/backup'
     | '/broadcasts'
     | '/client'
     | '/commands'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/backup'
     | '/_authenticated/broadcasts'
     | '/_authenticated/client'
     | '/_authenticated/commands'
@@ -608,6 +620,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBroadcastsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/backup': {
+      id: '/_authenticated/backup'
+      path: '/backup'
+      fullPath: '/backup'
+      preLoaderRoute: typeof AuthenticatedBackupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/desktop/': {
       id: '/_authenticated/desktop/'
       path: '/'
@@ -770,6 +789,7 @@ const AuthenticatedDevicesRouteWithChildren =
   AuthenticatedDevicesRoute._addFileChildren(AuthenticatedDevicesRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBackupRoute: typeof AuthenticatedBackupRoute
   AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRouteWithChildren
   AuthenticatedClientRoute: typeof AuthenticatedClientRoute
   AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
@@ -790,6 +810,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBackupRoute: AuthenticatedBackupRoute,
   AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRouteWithChildren,
   AuthenticatedClientRoute: AuthenticatedClientRoute,
   AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,

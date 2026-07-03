@@ -3,6 +3,7 @@ import {
   LayoutDashboard, MonitorSmartphone, Layers, Library, Terminal,
   LogOut, Cast, Search, Tv, ListVideo, CalendarClock, Radio,
   Monitor, FlaskConical, Map, BookOpen, Activity, Compass,
+  Database, Stethoscope, Zap,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
