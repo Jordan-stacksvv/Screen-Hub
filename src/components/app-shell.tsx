@@ -3,6 +3,7 @@ import {
   LayoutDashboard, MonitorSmartphone, Layers, Library, Terminal,
   LogOut, Cast, Search, Tv, ListVideo, CalendarClock, Radio,
   Monitor, FlaskConical, Map, BookOpen, Activity, Compass,
+  Database, Stethoscope, Zap,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,9 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; group?: st
   { to: "/simulator", label: "Simulator", icon: Tv, group: "tools" },
   { to: "/client", label: "Device Client", icon: Monitor, group: "tools" },
   { to: "/testing", label: "Testing", icon: FlaskConical, group: "tools" },
+  { to: "/desktop", label: "Desktop Control", icon: Zap, group: "tools" },
+  { to: "/diagnostics", label: "Diagnostics", icon: Stethoscope, group: "admin" },
+  { to: "/backup", label: "Backup", icon: Database, group: "admin" },
   { to: "/documentation", label: "Documentation", icon: BookOpen, group: "info" },
   { to: "/roadmap", label: "Roadmap", icon: Map, group: "info" },
   { to: "/project-status", label: "Status", icon: Activity, group: "info" },

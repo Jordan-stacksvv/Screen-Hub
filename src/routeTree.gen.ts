@@ -21,6 +21,7 @@ import { Route as AuthenticatedPlaylistsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedFutureRouteImport } from './routes/_authenticated/future'
 import { Route as AuthenticatedDocumentationRouteImport } from './routes/_authenticated/documentation'
+import { Route as AuthenticatedDiagnosticsRouteImport } from './routes/_authenticated/diagnostics'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedDesktopRouteImport } from './routes/_authenticated/desktop'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -28,6 +29,7 @@ import { Route as AuthenticatedContentRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCommandsRouteImport } from './routes/_authenticated/commands'
 import { Route as AuthenticatedClientRouteImport } from './routes/_authenticated/client'
 import { Route as AuthenticatedBroadcastsRouteImport } from './routes/_authenticated/broadcasts'
+import { Route as AuthenticatedBackupRouteImport } from './routes/_authenticated/backup'
 import { Route as AuthenticatedDesktopIndexRouteImport } from './routes/_authenticated/desktop.index'
 import { Route as AuthenticatedDevicesDeviceIdRouteImport } from './routes/_authenticated/devices.$deviceId'
 import { Route as AuthenticatedDesktopSettingsRouteImport } from './routes/_authenticated/desktop.settings'
@@ -105,6 +107,12 @@ const AuthenticatedDocumentationRoute =
     path: '/documentation',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDiagnosticsRoute =
+  AuthenticatedDiagnosticsRouteImport.update({
+    id: '/diagnostics',
+    path: '/diagnostics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
   id: '/devices',
   path: '/devices',
@@ -138,6 +146,11 @@ const AuthenticatedClientRoute = AuthenticatedClientRouteImport.update({
 const AuthenticatedBroadcastsRoute = AuthenticatedBroadcastsRouteImport.update({
   id: '/broadcasts',
   path: '/broadcasts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBackupRoute = AuthenticatedBackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDesktopIndexRoute =
@@ -232,6 +245,7 @@ const ApiPublicDevicesAckRoute = ApiPublicDevicesAckRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/backup': typeof AuthenticatedBackupRoute
   '/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
@@ -239,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/desktop': typeof AuthenticatedDesktopRouteWithChildren
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/diagnostics': typeof AuthenticatedDiagnosticsRoute
   '/documentation': typeof AuthenticatedDocumentationRoute
   '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -267,12 +282,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/backup': typeof AuthenticatedBackupRoute
   '/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/client': typeof AuthenticatedClientRoute
   '/commands': typeof AuthenticatedCommandsRoute
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/diagnostics': typeof AuthenticatedDiagnosticsRoute
   '/documentation': typeof AuthenticatedDocumentationRoute
   '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -303,6 +320,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/backup': typeof AuthenticatedBackupRoute
   '/_authenticated/broadcasts': typeof AuthenticatedBroadcastsRouteWithChildren
   '/_authenticated/client': typeof AuthenticatedClientRoute
   '/_authenticated/commands': typeof AuthenticatedCommandsRoute
@@ -310,6 +328,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/desktop': typeof AuthenticatedDesktopRouteWithChildren
   '/_authenticated/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/_authenticated/diagnostics': typeof AuthenticatedDiagnosticsRoute
   '/_authenticated/documentation': typeof AuthenticatedDocumentationRoute
   '/_authenticated/future': typeof AuthenticatedFutureRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
@@ -340,6 +359,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/backup'
     | '/broadcasts'
     | '/client'
     | '/commands'
@@ -347,6 +367,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/desktop'
     | '/devices'
+    | '/diagnostics'
     | '/documentation'
     | '/future'
     | '/groups'
@@ -375,12 +396,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/backup'
     | '/broadcasts'
     | '/client'
     | '/commands'
     | '/content'
     | '/dashboard'
     | '/devices'
+    | '/diagnostics'
     | '/documentation'
     | '/future'
     | '/groups'
@@ -410,6 +433,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/backup'
     | '/_authenticated/broadcasts'
     | '/_authenticated/client'
     | '/_authenticated/commands'
@@ -417,6 +441,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/desktop'
     | '/_authenticated/devices'
+    | '/_authenticated/diagnostics'
     | '/_authenticated/documentation'
     | '/_authenticated/future'
     | '/_authenticated/groups'
@@ -539,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDocumentationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/diagnostics': {
+      id: '/_authenticated/diagnostics'
+      path: '/diagnostics'
+      fullPath: '/diagnostics'
+      preLoaderRoute: typeof AuthenticatedDiagnosticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/devices': {
       id: '/_authenticated/devices'
       path: '/devices'
@@ -586,6 +618,13 @@ declare module '@tanstack/react-router' {
       path: '/broadcasts'
       fullPath: '/broadcasts'
       preLoaderRoute: typeof AuthenticatedBroadcastsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/backup': {
+      id: '/_authenticated/backup'
+      path: '/backup'
+      fullPath: '/backup'
+      preLoaderRoute: typeof AuthenticatedBackupRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/desktop/': {
@@ -750,6 +789,7 @@ const AuthenticatedDevicesRouteWithChildren =
   AuthenticatedDevicesRoute._addFileChildren(AuthenticatedDevicesRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBackupRoute: typeof AuthenticatedBackupRoute
   AuthenticatedBroadcastsRoute: typeof AuthenticatedBroadcastsRouteWithChildren
   AuthenticatedClientRoute: typeof AuthenticatedClientRoute
   AuthenticatedCommandsRoute: typeof AuthenticatedCommandsRoute
@@ -757,6 +797,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDesktopRoute: typeof AuthenticatedDesktopRouteWithChildren
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRouteWithChildren
+  AuthenticatedDiagnosticsRoute: typeof AuthenticatedDiagnosticsRoute
   AuthenticatedDocumentationRoute: typeof AuthenticatedDocumentationRoute
   AuthenticatedFutureRoute: typeof AuthenticatedFutureRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
@@ -769,6 +810,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBackupRoute: AuthenticatedBackupRoute,
   AuthenticatedBroadcastsRoute: AuthenticatedBroadcastsRouteWithChildren,
   AuthenticatedClientRoute: AuthenticatedClientRoute,
   AuthenticatedCommandsRoute: AuthenticatedCommandsRoute,
@@ -776,6 +818,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDesktopRoute: AuthenticatedDesktopRouteWithChildren,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRouteWithChildren,
+  AuthenticatedDiagnosticsRoute: AuthenticatedDiagnosticsRoute,
   AuthenticatedDocumentationRoute: AuthenticatedDocumentationRoute,
   AuthenticatedFutureRoute: AuthenticatedFutureRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
