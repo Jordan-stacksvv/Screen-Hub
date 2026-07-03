@@ -21,6 +21,7 @@ import { Route as AuthenticatedPlaylistsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedFutureRouteImport } from './routes/_authenticated/future'
 import { Route as AuthenticatedDocumentationRouteImport } from './routes/_authenticated/documentation'
+import { Route as AuthenticatedDiagnosticsRouteImport } from './routes/_authenticated/diagnostics'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedDesktopRouteImport } from './routes/_authenticated/desktop'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -103,6 +104,12 @@ const AuthenticatedDocumentationRoute =
   AuthenticatedDocumentationRouteImport.update({
     id: '/documentation',
     path: '/documentation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDiagnosticsRoute =
+  AuthenticatedDiagnosticsRouteImport.update({
+    id: '/diagnostics',
+    path: '/diagnostics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
@@ -239,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/desktop': typeof AuthenticatedDesktopRouteWithChildren
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/diagnostics': typeof AuthenticatedDiagnosticsRoute
   '/documentation': typeof AuthenticatedDocumentationRoute
   '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -273,6 +281,7 @@ export interface FileRoutesByTo {
   '/content': typeof AuthenticatedContentRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/diagnostics': typeof AuthenticatedDiagnosticsRoute
   '/documentation': typeof AuthenticatedDocumentationRoute
   '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -310,6 +319,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/desktop': typeof AuthenticatedDesktopRouteWithChildren
   '/_authenticated/devices': typeof AuthenticatedDevicesRouteWithChildren
+  '/_authenticated/diagnostics': typeof AuthenticatedDiagnosticsRoute
   '/_authenticated/documentation': typeof AuthenticatedDocumentationRoute
   '/_authenticated/future': typeof AuthenticatedFutureRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
@@ -347,6 +357,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/desktop'
     | '/devices'
+    | '/diagnostics'
     | '/documentation'
     | '/future'
     | '/groups'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/content'
     | '/dashboard'
     | '/devices'
+    | '/diagnostics'
     | '/documentation'
     | '/future'
     | '/groups'
@@ -417,6 +429,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/desktop'
     | '/_authenticated/devices'
+    | '/_authenticated/diagnostics'
     | '/_authenticated/documentation'
     | '/_authenticated/future'
     | '/_authenticated/groups'
@@ -537,6 +550,13 @@ declare module '@tanstack/react-router' {
       path: '/documentation'
       fullPath: '/documentation'
       preLoaderRoute: typeof AuthenticatedDocumentationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/diagnostics': {
+      id: '/_authenticated/diagnostics'
+      path: '/diagnostics'
+      fullPath: '/diagnostics'
+      preLoaderRoute: typeof AuthenticatedDiagnosticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/devices': {
@@ -757,6 +777,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDesktopRoute: typeof AuthenticatedDesktopRouteWithChildren
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRouteWithChildren
+  AuthenticatedDiagnosticsRoute: typeof AuthenticatedDiagnosticsRoute
   AuthenticatedDocumentationRoute: typeof AuthenticatedDocumentationRoute
   AuthenticatedFutureRoute: typeof AuthenticatedFutureRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
@@ -776,6 +797,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDesktopRoute: AuthenticatedDesktopRouteWithChildren,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRouteWithChildren,
+  AuthenticatedDiagnosticsRoute: AuthenticatedDiagnosticsRoute,
   AuthenticatedDocumentationRoute: AuthenticatedDocumentationRoute,
   AuthenticatedFutureRoute: AuthenticatedFutureRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
@@ -802,13 +824,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
