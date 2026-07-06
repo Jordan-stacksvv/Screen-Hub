@@ -38,3 +38,9 @@ dist-ssr
 
 # Supabase CLI cache
 supabase/.temp/
+
+# Vercel
+.vercel/
+
+# Electron build output
+release/
