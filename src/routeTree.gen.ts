@@ -15,12 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTestingRouteImport } from './routes/_authenticated/testing'
 import { Route as AuthenticatedSimulatorRouteImport } from './routes/_authenticated/simulator'
 import { Route as AuthenticatedSchedulesRouteImport } from './routes/_authenticated/schedules'
-import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
-import { Route as AuthenticatedProjectStatusRouteImport } from './routes/_authenticated/project-status'
 import { Route as AuthenticatedPlaylistsRouteImport } from './routes/_authenticated/playlists'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
-import { Route as AuthenticatedFutureRouteImport } from './routes/_authenticated/future'
-import { Route as AuthenticatedDocumentationRouteImport } from './routes/_authenticated/documentation'
 import { Route as AuthenticatedDiagnosticsRouteImport } from './routes/_authenticated/diagnostics'
 import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedDesktopRouteImport } from './routes/_authenticated/desktop'
@@ -75,17 +71,6 @@ const AuthenticatedSchedulesRoute = AuthenticatedSchedulesRouteImport.update({
   path: '/schedules',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProjectStatusRoute =
-  AuthenticatedProjectStatusRouteImport.update({
-    id: '/project-status',
-    path: '/project-status',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedPlaylistsRoute = AuthenticatedPlaylistsRouteImport.update({
   id: '/playlists',
   path: '/playlists',
@@ -96,17 +81,6 @@ const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedFutureRoute = AuthenticatedFutureRouteImport.update({
-  id: '/future',
-  path: '/future',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDocumentationRoute =
-  AuthenticatedDocumentationRouteImport.update({
-    id: '/documentation',
-    path: '/documentation',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedDiagnosticsRoute =
   AuthenticatedDiagnosticsRouteImport.update({
     id: '/diagnostics',
@@ -254,12 +228,8 @@ export interface FileRoutesByFullPath {
   '/desktop': typeof AuthenticatedDesktopRouteWithChildren
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/diagnostics': typeof AuthenticatedDiagnosticsRoute
-  '/documentation': typeof AuthenticatedDocumentationRoute
-  '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
   '/playlists': typeof AuthenticatedPlaylistsRoute
-  '/project-status': typeof AuthenticatedProjectStatusRoute
-  '/roadmap': typeof AuthenticatedRoadmapRoute
   '/schedules': typeof AuthenticatedSchedulesRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
   '/testing': typeof AuthenticatedTestingRoute
@@ -290,12 +260,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/diagnostics': typeof AuthenticatedDiagnosticsRoute
-  '/documentation': typeof AuthenticatedDocumentationRoute
-  '/future': typeof AuthenticatedFutureRoute
   '/groups': typeof AuthenticatedGroupsRoute
   '/playlists': typeof AuthenticatedPlaylistsRoute
-  '/project-status': typeof AuthenticatedProjectStatusRoute
-  '/roadmap': typeof AuthenticatedRoadmapRoute
   '/schedules': typeof AuthenticatedSchedulesRoute
   '/simulator': typeof AuthenticatedSimulatorRoute
   '/testing': typeof AuthenticatedTestingRoute
@@ -329,12 +295,8 @@ export interface FileRoutesById {
   '/_authenticated/desktop': typeof AuthenticatedDesktopRouteWithChildren
   '/_authenticated/devices': typeof AuthenticatedDevicesRouteWithChildren
   '/_authenticated/diagnostics': typeof AuthenticatedDiagnosticsRoute
-  '/_authenticated/documentation': typeof AuthenticatedDocumentationRoute
-  '/_authenticated/future': typeof AuthenticatedFutureRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
   '/_authenticated/playlists': typeof AuthenticatedPlaylistsRoute
-  '/_authenticated/project-status': typeof AuthenticatedProjectStatusRoute
-  '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
   '/_authenticated/schedules': typeof AuthenticatedSchedulesRoute
   '/_authenticated/simulator': typeof AuthenticatedSimulatorRoute
   '/_authenticated/testing': typeof AuthenticatedTestingRoute
@@ -368,12 +330,8 @@ export interface FileRouteTypes {
     | '/desktop'
     | '/devices'
     | '/diagnostics'
-    | '/documentation'
-    | '/future'
     | '/groups'
     | '/playlists'
-    | '/project-status'
-    | '/roadmap'
     | '/schedules'
     | '/simulator'
     | '/testing'
@@ -404,12 +362,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devices'
     | '/diagnostics'
-    | '/documentation'
-    | '/future'
     | '/groups'
     | '/playlists'
-    | '/project-status'
-    | '/roadmap'
     | '/schedules'
     | '/simulator'
     | '/testing'
@@ -442,12 +396,8 @@ export interface FileRouteTypes {
     | '/_authenticated/desktop'
     | '/_authenticated/devices'
     | '/_authenticated/diagnostics'
-    | '/_authenticated/documentation'
-    | '/_authenticated/future'
     | '/_authenticated/groups'
     | '/_authenticated/playlists'
-    | '/_authenticated/project-status'
-    | '/_authenticated/roadmap'
     | '/_authenticated/schedules'
     | '/_authenticated/simulator'
     | '/_authenticated/testing'
@@ -522,20 +472,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSchedulesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/roadmap': {
-      id: '/_authenticated/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof AuthenticatedRoadmapRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/project-status': {
-      id: '/_authenticated/project-status'
-      path: '/project-status'
-      fullPath: '/project-status'
-      preLoaderRoute: typeof AuthenticatedProjectStatusRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/playlists': {
       id: '/_authenticated/playlists'
       path: '/playlists'
@@ -548,20 +484,6 @@ declare module '@tanstack/react-router' {
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/future': {
-      id: '/_authenticated/future'
-      path: '/future'
-      fullPath: '/future'
-      preLoaderRoute: typeof AuthenticatedFutureRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/documentation': {
-      id: '/_authenticated/documentation'
-      path: '/documentation'
-      fullPath: '/documentation'
-      preLoaderRoute: typeof AuthenticatedDocumentationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/diagnostics': {
@@ -798,12 +720,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDesktopRoute: typeof AuthenticatedDesktopRouteWithChildren
   AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRouteWithChildren
   AuthenticatedDiagnosticsRoute: typeof AuthenticatedDiagnosticsRoute
-  AuthenticatedDocumentationRoute: typeof AuthenticatedDocumentationRoute
-  AuthenticatedFutureRoute: typeof AuthenticatedFutureRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
   AuthenticatedPlaylistsRoute: typeof AuthenticatedPlaylistsRoute
-  AuthenticatedProjectStatusRoute: typeof AuthenticatedProjectStatusRoute
-  AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
   AuthenticatedSchedulesRoute: typeof AuthenticatedSchedulesRoute
   AuthenticatedSimulatorRoute: typeof AuthenticatedSimulatorRoute
   AuthenticatedTestingRoute: typeof AuthenticatedTestingRoute
@@ -819,12 +737,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDesktopRoute: AuthenticatedDesktopRouteWithChildren,
   AuthenticatedDevicesRoute: AuthenticatedDevicesRouteWithChildren,
   AuthenticatedDiagnosticsRoute: AuthenticatedDiagnosticsRoute,
-  AuthenticatedDocumentationRoute: AuthenticatedDocumentationRoute,
-  AuthenticatedFutureRoute: AuthenticatedFutureRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
   AuthenticatedPlaylistsRoute: AuthenticatedPlaylistsRoute,
-  AuthenticatedProjectStatusRoute: AuthenticatedProjectStatusRoute,
-  AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
   AuthenticatedSchedulesRoute: AuthenticatedSchedulesRoute,
   AuthenticatedSimulatorRoute: AuthenticatedSimulatorRoute,
   AuthenticatedTestingRoute: AuthenticatedTestingRoute,

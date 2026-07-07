@@ -27,10 +27,6 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; group?: st
   { to: "/desktop", label: "Desktop Control", icon: Zap, group: "tools" },
   { to: "/diagnostics", label: "Diagnostics", icon: Stethoscope, group: "admin" },
   { to: "/backup", label: "Backup", icon: Database, group: "admin" },
-  { to: "/documentation", label: "Documentation", icon: BookOpen, group: "info" },
-  { to: "/roadmap", label: "Roadmap", icon: Map, group: "info" },
-  { to: "/project-status", label: "Status", icon: Activity, group: "info" },
-  { to: "/future", label: "Future", icon: Compass, group: "info" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

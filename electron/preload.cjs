@@ -22,4 +22,9 @@ contextBridge.exposeInMainWorld("screenhub", {
     setStatus: (status, count) => ipcRenderer.send("screenhub:tray-status", { status, count }),
   },
   onNavigate: (cb) => on("screenhub:navigate", cb),
+  openWindow: (opts) => ipcRenderer.send("screenhub:open-window", opts),
+  autoLaunch: {
+    get: () => ipcRenderer.invoke("screenhub:get-auto-launch"),
+    set: (enabled) => ipcRenderer.send("screenhub:set-auto-launch", enabled),
+  },
 });

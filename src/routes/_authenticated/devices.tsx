@@ -58,7 +58,6 @@ function DevicesPage() {
         </div>
         <div className="flex gap-2">
           <ClaimCodeDialog />
-          <AddDeviceDialog />
         </div>
       </header>
 
@@ -155,58 +154,6 @@ function StatusPill({ status }: { status: string }) {
       <span className={`h-1.5 w-1.5 rounded-full ${s.dot} ${status === "online" ? "animate-pulse" : ""}`} />
       {status}
     </Badge>
-  );
-}
-
-function AddDeviceDialog() {
-  const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [type, setType] = useState<DeviceType>("android_tv");
-  const [os, setOs] = useState("");
-
-  const create = useMutation({
-    mutationFn: async () => {
-      const identifier = `sh_${crypto.randomUUID().slice(0, 12)}`;
-      const { error } = await supabase.from("devices").insert({
-        device_name: name, device_type: type, operating_system: os || null,
-        unique_identifier: identifier, status: "unregistered",
-      });
-      if (error) throw error;
-      return identifier;
-    },
-    onSuccess: (id) => {
-      toast.success(`Device registered. ID: ${id}`);
-      qc.invalidateQueries({ queryKey: ["devices"] });
-      setOpen(false); setName(""); setOs("");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button className="glow"><Plus className="mr-2 h-4 w-4" />Register device</Button></DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Register a new device</DialogTitle>
-          <DialogDescription>You'll get a unique identifier to enroll the client app on this screen.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-2"><Label>Device name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Lobby TV" /></div>
-          <div className="space-y-2"><Label>Device type</Label>
-            <Select value={type} onValueChange={(v) => setType(v as DeviceType)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{DEVICE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2"><Label>Operating system <span className="text-muted-foreground">(optional)</span></Label><Input value={os} onChange={(e) => setOs(e.target.value)} placeholder="Android 13" /></div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button disabled={!name || create.isPending} onClick={() => create.mutate()}>Register</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }
 
